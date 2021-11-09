@@ -15,21 +15,20 @@ public class Ex1 {
 
     /**
      * main function
-     * @param args
      */
     public static void main(String[] args) {
 
-        int counter_line = 0;
         Document doc;
         Network net = null;
+        int counter_line = 0;
 
-        try(BufferedReader br = new BufferedReader(new FileReader(input_file_name))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(input_file_name))) {
             String line;
             while ((line = br.readLine()) != null) {
 
                 // getting the xml file name from the first line of the text file
 
-                if(counter_line == 0) {
+                if (counter_line == 0) {
 
                     // getting the document of the xml file
                     doc = readXMLFile(line);
@@ -38,8 +37,9 @@ public class Ex1 {
                     net = build_network(doc);
                 }
 
-                // get the file queries
+                // get the rest of the text file (queries)
 
+                //...
 
                 System.out.println("line: " + line);
                 counter_line++;
@@ -51,8 +51,9 @@ public class Ex1 {
 
     /**
      * this function return a xml document by a given xml file name
-     * @param file_name
-     * @return
+     *
+     * @param file_name xml file
+     * @return document
      */
     private static Document readXMLFile(String file_name) {
         // xml file
@@ -72,7 +73,7 @@ public class Ex1 {
         // create document form xml file (parse with builder)
         Document doc = null;
         try {
-            if(builder == null) {
+            if (builder == null) {
                 throw new IOException();
             }
             doc = builder.parse(inputFile);
