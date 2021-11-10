@@ -16,31 +16,44 @@ public class Common {
     public static String[] flatMatrix(String[][] X) {
         String[] P = new String[X.length * X[0].length];
         int k = 0;
-        for(int i = 0; i < X.length; i++) {
-            for(int j = 0; j < X[i].length; j++) {
-                P[k++] = X[i][j];
+        for(String[] x : X) {
+            for(String s : x) {
+                P[k++] = s;
             }
         }
         return P;
     }
 
     public static void printMatrix(String[][] X) {
-        for(int i = 0; i < X.length; i++) {
-            for(int j = 0; j < X[i].length; j++) {
-                System.out.print(X[i][j] + ", ");
+        for(String[] x : X) {
+            for(String s : x) {
+                System.out.print(s + ", ");
             }
             System.out.println();
         }
     }
 
     public static String printHashMap(HashMap<String, Double> map) {
-        String output = "";
+        StringBuilder output = new StringBuilder();
         Iterator<Map.Entry<String, Double>> iter = map.entrySet().iterator();
         while(iter.hasNext()) {
             Map.Entry<String, Double> pair = iter.next();
-            output += pair.getKey() + " : " + pair.getValue() + "\n";
+            output.append(pair.getKey()).append(" : ").append(pair.getValue()).append("\n");
             iter.remove();
         }
-        return output;
+        return output.toString();
+    }
+
+    public static HashMap<String, Double> convertMatrixToHashMap(String[][] matrix, double[] values) {
+        HashMap<String, Double> map = new HashMap<>();
+        for(int i = 0; i < matrix.length; i++) {
+            StringBuilder in = new StringBuilder();
+            for(int j = 0; j < matrix[0].length; j++) {
+                in.append(matrix[i][j]);
+            }
+            map.put(in.toString(), values[i]);
+
+        }
+        return map;
     }
 }

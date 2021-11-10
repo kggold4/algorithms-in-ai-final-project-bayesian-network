@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +19,18 @@ public class Node {
      */
     public Node(String name, String[] outcomes, double[] values, Node[] parents) {
         this.name = name;
-        if(parents != null) this.parents = new ArrayList<>(List.of(parents));
         this.childes = new ArrayList<>();
         this.outcomes = outcomes;
         this.values = values;
         this.cpt = new HashMap<>();
+
+        if(parents != null) {
+            this.parents = new ArrayList<>(List.of(parents));
+//            int sumOfOutcomes = this.outcomes.length;
+//            for(Node p : this.parents) sumOfOutcomes *= p.outcomes.length;
+//            if(sumOfOutcomes != this.values.length) throw new IOException("Invalid number of values inserted");
+//            System.out.println("total outcomes: " + sumOfOutcomes + ", sum of values: " + this.values.length);
+        }
 
         // do not have parents
         if(parents == null) {
@@ -39,7 +47,9 @@ public class Node {
             if(number_of_parents == 1) {
 
                 String[][] P = Common.permutation(this.name, this.parents.get(0).name, this.outcomes, this.parents.get(0).outcomes);
+//                HashMap<String, Double> Q = Common.convertMatrixToHashMap(P, this.values);
                 Common.printMatrix(P);
+//                Common.printHashMap(Q);
 //                for(int i = 0; i < this.outcomes.length; i++) {
 //                    for(int j = 0; j < this.parents[0].outcomes.length; j++) {
 //                        this.cpt.put(this.name + '=' + this.outcomes[i] + ',' + this.parents[0].name + '=' + this.parents[0].outcomes[j], this.values[i + j]);
@@ -71,7 +81,7 @@ public class Node {
                 }
             }
         }
-        System.out.println(this);
+        System.out.println("Print " + this.name + "\n" + this);
     }
 
     @Override
@@ -88,11 +98,11 @@ public class Node {
 //        Common.printMatrix(P);
 
         // single variable (no parents)
-        Node Q = new Node("Q", new String[]{"T", "F"}, new double[]{0.35, 0.65}, null);
+//        Node Q = new Node("Q", new String[]{"T", "F"}, new double[]{0.35, 0.65}, null);
 
         // two variables (X is parent of Y)
-//        Node X = new Node("X", new String[]{"T", "F"}, new double[]{0.6, 0.4}, null);
-//        Node Y = new Node("Y", new String[]{"v1", "v2", "v3"}, new double[]{0.8, 0.2}, new Node[]{X});
+        Node X = new Node("X", new String[]{"T", "F"}, new double[]{0.6, 0.4}, null);
+        Node Y = new Node("Y", new String[]{"v1", "v2", "v3"}, new double[]{0.02, 0.15, 0.03, 0.15, 0.15, 0.5}, new Node[]{X});
 
         // three variables (E and B are parents of A)
 //        Node E = new Node("E", new String[]{"T", "F"}, new double[]{0.002, 0.998}, null);
