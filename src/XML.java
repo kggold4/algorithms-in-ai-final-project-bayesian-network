@@ -162,6 +162,13 @@ public class XML {
         return new Network(variables);
     }
 
+    /**
+     * this function gets a string of double values from the TABLE tag in the DEFINITION tag in the xml file
+     * and return this values in a list of doubles.
+     * for example given "0.95 0.05 0.6 0.4" string this function will return List<Double>{0.95, 0.05, 0.6, 0.4}
+     * @param line string of double values
+     * @return list of doubles
+     */
     private static List<Double> split_table_line(String line) {
         String[] split_line = line.split(" ");
         List<Double> result = new ArrayList<>();
