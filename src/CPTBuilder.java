@@ -1,6 +1,4 @@
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -62,5 +60,21 @@ public class CPTBuilder {
                         .flatMap(u1 -> v2.get()
                                 .map(u2 -> aggregator.apply(u1, u2))))
                 .orElse(Stream::empty).get();
+    }
+
+    /**
+     * this function returns a string of a given CPT hashMap (for printing)
+     * @param map - given CPT hashmap
+     * @return CPT hashmap to string
+     */
+    public static String toString(HashMap<String, Double> map) {
+        StringBuilder output = new StringBuilder();
+        Iterator<Map.Entry<String, Double>> iter = map.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<String, Double> pair = iter.next();
+            output.append(pair.getKey()).append(" : ").append(pair.getValue()).append("\n");
+            iter.remove();
+        }
+        return output.toString();
     }
 }

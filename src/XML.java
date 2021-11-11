@@ -138,7 +138,7 @@ public class XML {
                 }
             }
             parents.put(name, variable_parents);
-            values.put(name, Common.split_table_line(table));
+            values.put(name, split_table_line(table));
         }
 
         List<Variable> variables = new ArrayList<>();
@@ -160,5 +160,14 @@ public class XML {
 
         // return bayesian network
         return new Network(variables);
+    }
+
+    private static List<Double> split_table_line(String line) {
+        String[] split_line = line.split(" ");
+        List<Double> result = new ArrayList<>();
+        for(String value : split_line) {
+            result.add(Double.parseDouble(value));
+        }
+        return result;
     }
 }

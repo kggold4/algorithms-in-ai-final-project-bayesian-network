@@ -44,7 +44,7 @@ public class Variable {
                 this.cpt.put(this.name + '=' + this.outcomes.get(i), this.values[i]);
             }
 
-            // have parents
+        // have parents
         } else {
 
             List<List<String>> all_outcomes = new ArrayList<>();
@@ -81,7 +81,7 @@ public class Variable {
     public String toString() {
         String output = "";
         output += this.name + ":\n";
-        output += Common.printHashMap(this.cpt);
+        output += CPTBuilder.toString(this.cpt);
         return output;
     }
 
