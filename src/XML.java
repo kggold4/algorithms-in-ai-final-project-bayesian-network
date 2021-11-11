@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * this class contains static functions that can handle xml file reading and xml document reading for building bayesian network
@@ -143,20 +142,20 @@ public class XML {
 
         List<Variable> variables = new ArrayList<>();
 
-        for (Map.Entry variable : variableHashMap.entrySet()) {
-            Variable value = (Variable) variable.getValue();
-            List<Double> t1 = values.get(variable.getKey());
-            List<Variable> s1 = parents.get(variable.getKey());
+        // for each variable initialize parents
+        variableHashMap.forEach((key, value1) -> {
+            List<Double> t1 = values.get(key);
+            List<Variable> s1 = parents.get(key);
 
             double[] t2 = new double[t1.size()];
-            for(int i = 0; i < t2.length; i++) t2[i] = t1.get(i);
+            for (int i = 0; i < t2.length; i++) t2[i] = t1.get(i);
 
             Variable[] s2 = new Variable[s1.size()];
-            for(int i = 0; i < s2.length; i++) s2[i] = s1.get(i);
+            for (int i = 0; i < s2.length; i++) s2[i] = s1.get(i);
 
-            value.initialize_parents(t2, s2);
-            variables.add((Variable) variable.getValue());
-        }
+            value1.initialize_parents(t2, s2);
+            variables.add(value1);
+        });
 
         // return bayesian network
         return new Network(variables);
