@@ -1,14 +1,11 @@
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Node {
-    private String name;
+    private final String name;
     private List<Node> parents;
-    private List<Node> childes;
-    private String[] outcomes;
-    private double[] values;
+    private final List<Node> childes;
+    private final String[] outcomes;
+    private final double[] values;
     private HashMap<String, Double> cpt;
 
     /**
@@ -24,16 +21,10 @@ public class Node {
         this.values = values;
         this.cpt = new HashMap<>();
 
-        if(parents != null) {
-            this.parents = new ArrayList<>(List.of(parents));
-//            int sumOfOutcomes = this.outcomes.length;
-//            for(Node p : this.parents) sumOfOutcomes *= p.outcomes.length;
-//            if(sumOfOutcomes != this.values.length) throw new IOException("Invalid number of values inserted");
-//            System.out.println("total outcomes: " + sumOfOutcomes + ", sum of values: " + this.values.length);
-        }
+        if(parents != null) this.parents = new ArrayList<>(List.of(parents));
 
         // do not have parents
-        if(parents == null) {
+        if(parents == null || this.parents.size() == 0) {
 
             for(int i = 0; i < this.outcomes.length; i++) {
                 this.cpt.put(this.name + '=' + this.outcomes[i], this.values[i]);
@@ -42,46 +33,27 @@ public class Node {
         // have parents
         } else {
 
-            int number_of_parents = this.parents.size();
-            // has one parent
-            if(number_of_parents == 1) {
+            List<String[]> all_outcomes = new ArrayList<>();
+            List<String> all_names = new ArrayList<>();
 
-                String[][] P = Common.permutation(this.name, this.parents.get(0).name, this.outcomes, this.parents.get(0).outcomes);
-//                HashMap<String, Double> Q = Common.convertMatrixToHashMap(P, this.values);
-                Common.printMatrix(P);
-//                Common.printHashMap(Q);
-//                for(int i = 0; i < this.outcomes.length; i++) {
-//                    for(int j = 0; j < this.parents[0].outcomes.length; j++) {
-//                        this.cpt.put(this.name + '=' + this.outcomes[i] + ',' + this.parents[0].name + '=' + this.parents[0].outcomes[j], this.values[i + j]);
-//                    }
-//                }
-
-            // has two parents
-            } else if(number_of_parents == 2) {
-
-
-
-            // have more than three parents
-            } else {
-
-                for(int i = 0; i < number_of_parents; i++) {
-                    Node temp = this;
-                    String[][] P = Common.permutation(temp.name, temp.parents.get(i).name, temp.outcomes, temp.parents.get(i).outcomes);
-
-//                    Common.permutation(temp.name, temp)
-                    String[] P2 = Common.flatMatrix(P);
-
-
-//                    A = permotation(A, this.parents[i])
-                }
-
-                // getting parent outcomes
-                for(Node p : this.parents) {
-
-                }
+            for (Node p : this.parents) {
+                all_outcomes.add(p.outcomes);
+                all_names.add(p.name);
             }
+            all_outcomes.add(this.outcomes);
+            all_names.add(this.name);
+            this.cpt = Common.BuildCPTHashMap(this.values, all_outcomes, all_names);
+
         }
-        System.out.println("Print " + this.name + "\n" + this);
+        System.out.println(this);
+    }
+
+    public void addChildes(Node[] childes) {
+        this.childes.addAll(List.of(childes));
+    }
+
+    public void addChildes(Node child) {
+        this.childes.add(child);
     }
 
     @Override
@@ -94,6 +66,8 @@ public class Node {
 
     public static void main(String[] args) {
 
+        // examples
+
 //        String[][] P = Common.permutation("A","B" ,new String[]{"T","F"}, new String[]{"v1","v2","v3"});
 //        Common.printMatrix(P);
 
@@ -101,14 +75,27 @@ public class Node {
 //        Node Q = new Node("Q", new String[]{"T", "F"}, new double[]{0.35, 0.65}, null);
 
         // two variables (X is parent of Y)
-        Node X = new Node("X", new String[]{"T", "F"}, new double[]{0.6, 0.4}, null);
-        Node Y = new Node("Y", new String[]{"v1", "v2", "v3"}, new double[]{0.02, 0.15, 0.03, 0.15, 0.15, 0.5}, new Node[]{X});
+//        Node X = new Node("X", new String[]{"T", "F"}, new double[]{0.6, 0.4}, null);
+//        Node Y = new Node("Y", new String[]{"v1", "v2", "v3"}, new double[]{0.02, 0.15, 0.03, 0.15, 0.15, 0.5}, new Node[]{X});
 
         // three variables (E and B are parents of A)
 //        Node E = new Node("E", new String[]{"T", "F"}, new double[]{0.002, 0.998}, null);
 //        Node B = new Node("B", new String[]{"T", "F"}, new double[]{0.001, 0.999}, null);
 //        Node A = new Node("A", new String[]{"v1", "v2", "v3"}, new double[]{0.95, 0.05, 0.29, 0.71, 0.94, 0.06, 0.001, 0.999}, new Node[]{E, B});
 //
+
+        // example from lecture
+        Node Weather = new Node("Weather", new String[]{"T", "F"}, new double[]{0.4, 0.6}, null);
+        System.out.println(Weather);
+
+        Node Cavity = new Node("Cavity", new String[]{"T", "F"}, new double[]{0.8, 0.2}, null);
+        System.out.println(Cavity);
+
+        Node Toothache = new Node("Toothache", new String[]{"T", "F"}, new double[]{0.8, 0.2, 0.4, 0.6}, new Node[]{Cavity});
+        System.out.println(Toothache);
+
+        Node Catch = new Node("Catch", new String[]{"T", "F"}, new double[]{0.9, 0.1, 0.05, 0.95}, new Node[]{Cavity});
+        System.out.println(Catch);
 
 
     }
