@@ -16,6 +16,7 @@ public class Variable {
      *
      * @param name     the name of the variable (for instance "A", "E", "VariableA" ...)
      * @param outcomes the outcomes this variable can get (for instance [T, F] or [v1, v2, v3]...)
+     * @param values   outcomes values
      * @param parents  the parents variables of this variable
      */
     public Variable(String name, List<String> outcomes, double[] values, Variable[] parents) {
@@ -29,8 +30,8 @@ public class Variable {
     /**
      * constructor to create a variables without initialize parents and values
      *
-     * @param name
-     * @param outcomes
+     * @param name     the name of the variable (for instance "A", "E", "VariableA" ...)
+     * @param outcomes the outcomes this variable can get (for instance [T, F] or [v1, v2, v3]...)
      */
     public Variable(String name, List<String> outcomes) {
         this.name = name;
@@ -42,8 +43,8 @@ public class Variable {
     /**
      * initialize parents after creating the variable
      *
-     * @param values
-     * @param parents
+     * @param values  outcomes values
+     * @param parents variable parents
      */
     public void initialize_parents(double[] values, Variable[] parents) {
 
