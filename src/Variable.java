@@ -6,45 +6,52 @@ import java.util.*;
 public class Variable {
     private final String name;
     private List<Variable> parents;
-    private final List<Variable> childes;
     private final List<String> outcomes;
     private double[] values;
     private HashMap<String, Double> cpt;
+    private boolean shaded;
 
     /**
-     * constructor to create a node
-     * @param name the name of the node (for instance "A", "E", "NodeA" ...)
+     * constructor to create a variable
+     *
+     * @param name     the name of the variable (for instance "A", "E", "VariableA" ...)
      * @param outcomes the outcomes this variable can get (for instance [T, F] or [v1, v2, v3]...)
-     * @param parents the parents variables of this variable
+     * @param parents  the parents variables of this variable
      */
     public Variable(String name, List<String> outcomes, double[] values, Variable[] parents) {
         this.name = name;
-        this.childes = new ArrayList<>();
         this.outcomes = outcomes;
         this.cpt = new HashMap<>();
+        this.shaded = false;
         initialize_parents(values, parents);
     }
 
     public Variable(String name, List<String> outcomes) {
         this.name = name;
-        this.childes = new ArrayList<>();
         this.outcomes = outcomes;
         this.cpt = new HashMap<>();
+        this.shaded = false;
     }
 
+    /**
+     * initialize parents after creating the variable
+     *
+     * @param values
+     * @param parents
+     */
     public void initialize_parents(double[] values, Variable[] parents) {
 
         this.values = values;
-        if(parents != null) this.parents = new ArrayList<>(List.of(parents));
+        if (parents != null) this.parents = new ArrayList<>(List.of(parents));
 
         // do not have parents
-        if(parents == null || this.parents.size() == 0) {
+        if (parents == null || this.parents.size() == 0) {
 
-            for(int i = 0; i < this.outcomes.size(); i++) {
+            for (int i = 0; i < this.outcomes.size(); i++) {
                 this.cpt.put(this.name + '=' + this.outcomes.get(i), this.values[i]);
             }
 
-        // have parents
+            // have parents
         } else {
 
             List<List<String>> all_outcomes = new ArrayList<>();
@@ -61,22 +68,38 @@ public class Variable {
         }
     }
 
-    public void addChildes(Variable[] childes) {
-        this.childes.addAll(List.of(childes));
-    }
-
-    public void addChildes(Variable child) {
-        this.childes.add(child);
-    }
-
-    public List<Variable> getChildes() {
-        return this.childes;
-    }
-
+    /**
+     * @return - parents list
+     */
     public List<Variable> getParents() {
         return this.parents;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * set shaded - using for the bayes-ball algorithm
+     *
+     * @param shaded - true or false
+     */
+    public void setShade(boolean shaded) {
+        this.shaded = shaded;
+    }
+
+    /**
+     * @return - shaded status
+     */
+    public boolean isShaded() {
+        return this.shaded;
+    }
+
+    /**
+     * to string method
+     *
+     * @return - string represents the variable
+     */
     @Override
     public String toString() {
         String output = "";
@@ -93,11 +116,11 @@ public class Variable {
 //        Common.printMatrix(P);
 
         // single variable (no parents)
-//        Node Q = new Node("Q", new String[]{"T", "F"}, new double[]{0.35, 0.65}, null);
+//        Variable Q = new Variable("Q", new String[]{"T", "F"}, new double[]{0.35, 0.65}, null);
 
         // two variables (X is parent of Y)
-//        Node X = new Node("X", new String[]{"T", "F"}, new double[]{0.6, 0.4}, null);
-//        Node Y = new Node("Y", new String[]{"v1", "v2", "v3"}, new double[]{0.02, 0.15, 0.03, 0.15, 0.15, 0.5}, new Node[]{X});
+//        Variable X = new Variable("X", new String[]{"T", "F"}, new double[]{0.6, 0.4}, null);
+//        Variable Y = new Variable("Y", new String[]{"v1", "v2", "v3"}, new double[]{0.02, 0.15, 0.03, 0.15, 0.15, 0.5}, new Variable[]{X});
 
         // three variables (E and B are parents of A)
         Variable E = new Variable("E", List.of(new String[]{"T", "F"}), new double[]{0.002, 0.998}, null);

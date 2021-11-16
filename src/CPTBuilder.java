@@ -11,14 +11,15 @@ public class CPTBuilder {
 
     /**
      * build and CPT hashmap by given the names, outcomes and values of the variable
-     * @param values - values of outcomes for each variable
+     *
+     * @param values   - values of outcomes for each variable
      * @param outcomes - possible outcomes for each variable
-     * @param names - name for each variable
+     * @param names    - name for each variable
      * @return - .
      */
     public static HashMap<String, Double> BuildCPTHashMap(double[] values, List<List<String>> outcomes, List<String> names) {
         int n = outcomes.size();
-        Supplier[] supp = new Supplier[n];
+        var supp = new Supplier[n];
         for (int i = 0; i < n; i++) {
             int k = i;
             supp[i] = () -> Stream.of(outcomes.get(k).toArray());
@@ -49,6 +50,7 @@ public class CPTBuilder {
 
     /**
      * calculate cartesian of several given outcomes using java streams
+     *
      * @param aggregator
      * @param in
      * @return
@@ -64,6 +66,7 @@ public class CPTBuilder {
 
     /**
      * this function returns a string of a given CPT hashMap (for printing)
+     *
      * @param map - given CPT hashmap
      * @return CPT hashmap to string
      */
