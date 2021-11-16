@@ -26,6 +26,12 @@ public class Variable {
         initialize_parents(values, parents);
     }
 
+    /**
+     * constructor to create a variables without initialize parents and values
+     *
+     * @param name
+     * @param outcomes
+     */
     public Variable(String name, List<String> outcomes) {
         this.name = name;
         this.outcomes = outcomes;
@@ -75,6 +81,13 @@ public class Variable {
         return this.parents;
     }
 
+    /**
+     * @return - true if variables has parents, else return false
+     */
+    public boolean hasParents() {
+        return this.parents.size() > 0;
+    }
+
     public String getName() {
         return this.name;
     }
@@ -103,7 +116,7 @@ public class Variable {
     @Override
     public String toString() {
         String output = "";
-        output += this.name + ":\n";
+        output += this.name;
         output += CPTBuilder.toString(this.cpt);
         return output;
     }

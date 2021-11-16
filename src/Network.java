@@ -8,16 +8,20 @@ public class Network {
     private final List<Variable> variables;
 
     // saving parents for each variable
-    private HashMap<Variable, List<Variable>> parents;
+    private final HashMap<Variable, List<Variable>> parents;
 
     // saving childes for each variable
-    private HashMap<Variable, List<Variable>> childes;
+    private final HashMap<Variable, List<Variable>> childes;
+
+    private static final List<Variable> empty_list = new ArrayList<>();
 
     /**
      * empty constructor
      */
     public Network() {
         this.variables = new ArrayList<>();
+        this.parents = new HashMap<>();
+        this.childes = new HashMap<>();
         initialize_parents_childes();
     }
 
@@ -28,6 +32,8 @@ public class Network {
      */
     public Network(List<Variable> variables) {
         this.variables = new ArrayList<>(variables);
+        this.parents = new HashMap<>();
+        this.childes = new HashMap<>();
         initialize_parents_childes();
     }
 
@@ -60,6 +66,16 @@ public class Network {
                 }
             }
         }
+
+        // fixing hashmaps for variables without parents or childes
+        for (Variable variable : this.variables) {
+            if (!this.parents.containsKey(variable)) {
+                this.parents.put(variable, empty_list);
+            }
+            if (!this.childes.containsKey(variable)) {
+                this.childes.put(variable, empty_list);
+            }
+        }
     }
 
     public void addNode(String name, List<String> outcomes, double[] values, Variable[] parents) {
@@ -89,15 +105,15 @@ public class Network {
     }
 
     public void print_childes_parents() {
-        Iterator it_p = this.parents.entrySet().iterator();
+        Iterator<Map.Entry<Variable, List<Variable>>> it_p = this.childes.entrySet().iterator();
         while (it_p.hasNext()) {
-            Map.Entry pair = (Map.Entry)it_p.next();
+            Map.Entry<Variable, List<Variable>> pair = it_p.next();
             System.out.println("node is: " + pair.getKey() + " , childes are: " + pair.getValue());
             it_p.remove();
         }
-        Iterator it_c = this.childes.entrySet().iterator();
+        Iterator<Map.Entry<Variable, List<Variable>>> it_c = this.parents.entrySet().iterator();
         while (it_c.hasNext()) {
-            Map.Entry pair = (Map.Entry)it_c.next();
+            Map.Entry<Variable, List<Variable>> pair = it_c.next();
             System.out.println("node is: " + pair.getKey() + " , parents are: " + pair.getValue());
             it_c.remove();
         }

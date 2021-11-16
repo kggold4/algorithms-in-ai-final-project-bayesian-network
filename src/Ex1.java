@@ -13,7 +13,7 @@ public class Ex1 {
     public static void main(String[] args) {
 
         Document doc;
-        Network net = null;
+        Network net;
         int counter_line = 0;
 
         try (BufferedReader br = new BufferedReader(new FileReader(input_file_name))) {
@@ -30,13 +30,15 @@ public class Ex1 {
                     // build the bayes network from the document
                     net = XML.build_network(doc);
                     System.out.println(net);
+                    System.out.println("parents and childes:");
+                    net.print_childes_parents();
                 }
 
                 // get the rest of the text file (queries)
 
                 //...
 
-                System.out.println("line: " + line);
+//                System.out.println("line: " + line);
                 counter_line++;
             }
         } catch (IOException e) {
