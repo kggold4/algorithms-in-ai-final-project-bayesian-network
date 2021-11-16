@@ -11,10 +11,10 @@ public class CPTBuilder {
 
     /**
      * build and CPT hashmap by given the names, outcomes and values of the variable
-     * @param values
-     * @param outcomes
-     * @param names
-     * @return
+     * @param values - values of outcomes for each variable
+     * @param outcomes - possible outcomes for each variable
+     * @param names - name for each variable
+     * @return - .
      */
     public static HashMap<String, Double> BuildCPTHashMap(double[] values, List<List<String>> outcomes, List<String> names) {
         int n = outcomes.size();

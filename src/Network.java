@@ -6,7 +6,7 @@ import java.util.List;
  */
 public class Network {
 
-    private List<Variable> variables;
+    private final List<Variable> variables;
 
     public Network() {
         this.variables = new ArrayList<>();
@@ -35,9 +35,7 @@ public class Network {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        for(Variable variable : variables) {
-            result.append(variable);
-        }
+        for(Variable variable : variables) result.append(variable);
         return result.toString();
     }
 }
