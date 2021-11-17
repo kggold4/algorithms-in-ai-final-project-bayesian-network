@@ -89,7 +89,49 @@ public class Network {
         return this.variables.size();
     }
 
-    public boolean bayes_ball() {
+    /**
+     * bayes ball algorithm using BFS algorithm
+     * return true if and only if the start_node and the destination_node are independents
+     * else, return false
+     *
+     * @param start_node
+     * @param destination_node
+     * @param evidences_nodes
+     * @return
+     */
+    public boolean bayes_ball(Variable start_node, Variable destination_node, List<Variable> evidences_nodes) {
+
+        if (this.parents.get(start_node).isEmpty() && this.parents.get(destination_node).isEmpty() && evidences_nodes.isEmpty()) {
+            return true;
+        }
+
+        // set all the given evidences as shaded
+        for (Variable variable : this.variables) {
+            if (evidences_nodes.contains(variable)) variable.setShade(true);
+            else variable.setShade(false);
+        }
+
+        // for each variable save if visited
+        HashMap<Variable, Color> color = new HashMap<>();
+        for (Variable variable : this.variables) color.put(variable, Color.WHITE);
+        color.put(start_node, Color.GREY);
+
+        Queue<Variable> queue = new LinkedList<>();
+        queue.add(start_node);
+
+        // bayes ball algorithm with the using of BFS algorithm
+        while (!queue.isEmpty()) {
+            Variable v = queue.poll();
+            for (Variable u : this.childes.get(v)) {
+                if (color.get(u) == Color.WHITE) {
+                    color.put(u, Color.GREY);
+                    queue.add(u);
+                }
+            }
+
+        }
+
+
         return true;
     }
 
