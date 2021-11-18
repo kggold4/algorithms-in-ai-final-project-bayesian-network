@@ -58,35 +58,33 @@ public class Ex1 {
         List<String> split_queries = List.of(queries.toString().split(split_mark));
         System.out.println("queries: ");
         int i = 1;
-        for(String q : split_queries) {
+        for (String q : split_queries) {
 
             System.out.println(i + ") " + q + ", type: " + QueryReader.typeOfQuery(q));
 
-            if(QueryReader.typeOfQuery(q).equals(QueryType.BAYES)) {
+            if (QueryReader.typeOfQuery(q).equals(QueryType.BAYES)) {
                 List<String> ball_variables = QueryReader.bayesBallQuery(q);
                 String first_variable = ball_variables.get(0);
                 String second_variable = ball_variables.get(1);
                 List<String> evidence_variables = new ArrayList<>();
-                for(int j = 2; j < ball_variables.size(); j++) {
+                for (int j = 2; j < ball_variables.size(); j++) {
                     evidence_variables.add(ball_variables.get(j));
                 }
                 boolean independents = net.bayes_ball(first_variable, second_variable, evidence_variables);
                 System.out.println(first_variable + "_|_" + second_variable + "|" + evidence_variables + " = " + independents);
-                if(independents) {
+                if (independents) {
                     output.append("yes");
                 } else {
                     output.append("no");
                 }
-            } else if(QueryReader.typeOfQuery(q).equals(QueryType.VE)) {
+            } else if (QueryReader.typeOfQuery(q).equals(QueryType.VE)) {
 
             }
 
             output.append("\n");
 
-
             i++;
         }
-
 
         // need to save output to output txt file...
         System.out.println("output:\n" + output);
