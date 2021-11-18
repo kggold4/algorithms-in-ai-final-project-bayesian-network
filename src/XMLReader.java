@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * this class contains static functions that can handle xml file reading and xml document reading for building bayesian network
  */
-public class XML {
+public class XMLReader {
 
     /**
      * this function return a xml document by a given xml file name
@@ -160,10 +160,6 @@ public class XML {
 
         // return bayesian network
         return variables;
-    }
-
-    public static Query typeOfQuery(String query) {
-        return query.charAt(0) == 'P' ? Query.VE : Query.BAYES;
     }
 
     /**
