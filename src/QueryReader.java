@@ -81,7 +81,7 @@ public class QueryReader {
             i++;
         }
 
-        System.out.println("Variables Bayes: " + output);
+//        System.out.println("Variables Bayes: " + output);
 
         return output;
     }

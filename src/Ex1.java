@@ -55,13 +55,15 @@ public class Ex1 {
         // check queries
         System.out.println(net);
 
-        System.out.println("E_|_B = " + net.bayes_ball("E", "B", null));
-        System.out.println("E_|_B|J = " + net.bayes_ball("E", "B", List.of(new String[]{"J"})));
+//        System.out.println("E_|_B = " + net.bayes_ball("B", "E", null));
+//        System.out.println("E_|_B|J = " + net.bayes_ball("B", "E", List.of(new String[]{"J"})));
 
         List<String> split_queries = List.of(queries.toString().split(split_mark));
         System.out.println("queries: ");
         int i = 1;
         for(String q : split_queries) {
+
+            System.out.println(i + ") " + q + ", type: " + QueryReader.typeOfQuery(q));
 
             if(QueryReader.typeOfQuery(q).equals(QueryType.BAYES)) {
                 List<String> ball_variables = QueryReader.bayesBallQuery(q);
@@ -71,7 +73,9 @@ public class Ex1 {
                 for(int j = 2; j < ball_variables.size(); j++) {
                     evidence_variables.add(ball_variables.get(j));
                 }
-                if(net.bayes_ball(first_variable, second_variable, evidence_variables)) {
+                boolean independents = net.bayes_ball(first_variable, second_variable, evidence_variables);
+                System.out.println(first_variable + "_|_" + second_variable + "|" + evidence_variables + " = " + independents);
+                if(independents) {
                     output.append("yes");
                 } else {
                     output.append("no");
@@ -82,13 +86,13 @@ public class Ex1 {
 
             output.append("\n");
 
-            System.out.println(i + ") " + q + ", type: " + QueryReader.typeOfQuery(q));
+
             i++;
         }
 
 
         // need to save output to output txt file...
-        System.out.println("\n\noutput:\n" + output);
+        System.out.println("output:\n" + output);
 
     }
 }

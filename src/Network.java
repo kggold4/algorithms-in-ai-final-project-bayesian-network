@@ -122,8 +122,6 @@ public class Network {
      */
     public boolean bayes_ball(String start_node, String destination_node, List<String> evidences_nodes_names) {
 
-        System.out.println("start_node: " + start_node + ", destination_node: " + destination_node + ", evidences_nodes_names: " + evidences_nodes_names);
-
         List<Variable> evidences_nodes = new ArrayList<>();
         if (evidences_nodes_names != null) {
             for (String name : evidences_nodes_names) {
