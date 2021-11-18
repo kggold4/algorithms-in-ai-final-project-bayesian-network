@@ -114,10 +114,6 @@ public class Network {
         return null;
     }
 
-    public void CALL() {
-        print_childes_parents();
-    }
-
     /**
      * @param start_node            starting variable name position of the BFS algorithm
      * @param destination_node      the variable the algorithm is searching for
@@ -147,21 +143,24 @@ public class Network {
      */
     public boolean bayes_ball(Variable start_node, Variable destination_node, List<Variable> evidences_nodes) {
 
-        if (!this.uninitialized) this.initialize_parents_childes();
+         if (!this.uninitialized) this.initialize_parents_childes();
 
+         // if the start node and the destination node do not have any parents, and we not have any evidence they are independents
          if (this.parents.get(start_node.getName()).isEmpty() && this.parents.get(destination_node.getName()).isEmpty() && evidences_nodes.isEmpty()) {
+             // System.out.println("first case");``
              return true;
          }
+
+         HashMap<Variable, Boolean> visited = new HashMap<>();
 
         // set all the given evidences as shaded
         for (Variable variable : this.variables) {
             variable.setShade(evidences_nodes.contains(variable));
+            visited.put(variable, false);
         }
 
         // for each variable save if visited
-        HashMap<Variable, Color> color = new HashMap<>();
-        for (Variable variable : this.variables) color.put(variable, Color.WHITE);
-        color.put(start_node, Color.GREY);
+        visited.put(start_node, true);
 
         Queue<Variable> queue = new LinkedList<>();
         queue.add(start_node);
@@ -169,24 +168,32 @@ public class Network {
         // bayes ball algorithm with the using of BFS algorithm
         while (!queue.isEmpty()) {
             Variable v = queue.poll();
+            // System.out.println("poll: " + v.getName());
 
             for (Variable u : this.current_direction.get(v.getName())) {
+//                System.out.println("Neighbor: " + u.getName() + ", color: " + color.get(u).toString());
 
-                if (color.get(u) == Color.WHITE) {
+                if (!visited.get(u)) {
 
                     if (u.isShaded()) {
+
+                        // System.out.println(u + " is shaded");
                         // go with parents
+                        visited.put(v, true);
                         this.direction_to_parents = true;
                         this.changeDirection();
 
                     } else {
 
+                        // System.out.println("change color of " + u + " to " + Color.GREY.toString());
                         // if the variable is not evidence mark him as GREY - visited
-                        color.put(u, Color.GREY);
+                        visited.put(u, true);
                     }
 
                     // dependents - found the destination variable
                     if (u == destination_node) {
+
+                        // System.out.println("found destination " + u);
                         return false;
                     }
 
@@ -195,7 +202,7 @@ public class Network {
             }
 
             // done with variable v
-            color.put(v, Color.BLACK);
+//            color.put(v, Color.BLACK);
         }
 
         // independents
