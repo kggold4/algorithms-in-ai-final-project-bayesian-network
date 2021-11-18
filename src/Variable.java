@@ -7,7 +7,6 @@ public class Variable {
     private final String name;
     private List<Variable> parents;
     private final List<String> outcomes;
-    private double[] values;
     private HashMap<String, Double> cpt;
     private boolean shaded;
     public boolean uninitialized;
@@ -51,14 +50,13 @@ public class Variable {
      */
     public void initialize_parents(double[] values, Variable[] parents) {
 
-        this.values = values;
         if (parents != null) this.parents = new ArrayList<>(List.of(parents));
 
         // do not have parents
         if (parents == null || this.parents.size() == 0) {
 
             for (int i = 0; i < this.outcomes.size(); i++) {
-                this.cpt.put(this.name + '=' + this.outcomes.get(i), this.values[i]);
+                this.cpt.put(this.name + '=' + this.outcomes.get(i), values[i]);
             }
 
             // have parents
@@ -73,7 +71,7 @@ public class Variable {
             }
             all_outcomes.add(this.outcomes);
             all_names.add(this.name);
-            this.cpt = CPTBuilder.BuildCPTHashMap(this.values, all_outcomes, all_names);
+            this.cpt = CPTBuilder.BuildCPTHashMap(values, all_outcomes, all_names);
 
         }
         this.uninitialized = true;

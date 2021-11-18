@@ -37,8 +37,6 @@ public class Network {
         this.direction_to_parents = false;
         this.uninitialized = false;
         initialize_parents_childes();
-        System.out.println("network created");
-        System.out.println(this.parents.containsKey("A"));
     }
 
     /**
@@ -46,13 +44,11 @@ public class Network {
      */
     private void initialize_parents_childes() {
 
-        for(Variable variable : this.variables) {
+        for (Variable variable : this.variables) {
             List<Variable> variable_parents = variable.getParents();
 
             // add parents for current variable
             this.parents.put(variable.getName(), variable_parents);
-            System.out.println(this.parents.containsKey("E"));
-            System.out.println("putting in parents variable: (" + variable.getName() + "), " + variable_parents);
 
             // add child for each parent of current variable
             for (Variable parent : variable_parents) {
@@ -130,12 +126,6 @@ public class Network {
      */
     public boolean bayes_ball(String start_node, String destination_node, List<String> evidences_nodes_names) {
 
-//        if (!uninitialized) {
-//            System.out.println("asdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnf");
-//        }
-
-        print_childes_parents();
-
         List<Variable> evidences_nodes = new ArrayList<>();
         if (evidences_nodes_names != null) {
             for (String name : evidences_nodes_names) {
@@ -157,19 +147,11 @@ public class Network {
      */
     public boolean bayes_ball(Variable start_node, Variable destination_node, List<Variable> evidences_nodes) {
 
-        if (!this.uninitialized) {
-            System.out.println("not goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot good");
-            this.initialize_parents_childes();
-        }
+        if (!this.uninitialized) this.initialize_parents_childes();
 
-        System.out.println("YYYYYYYYYYYYYY");
-        System.out.println(start_node.getName() + " : " + this.parents.containsKey(start_node.getName()));
-        System.out.println(destination_node.getName() + " : " + this.parents.containsKey(destination_node.getName()));
-        print_childes_parents();
-
-        // if (this.parents.get(start_node).isEmpty() && this.parents.get(destination_node).isEmpty() && evidences_nodes.isEmpty()) {
-        //     return true;
-        // }
+         if (this.parents.get(start_node.getName()).isEmpty() && this.parents.get(destination_node.getName()).isEmpty() && evidences_nodes.isEmpty()) {
+             return true;
+         }
 
         // set all the given evidences as shaded
         for (Variable variable : this.variables) {
@@ -210,13 +192,11 @@ public class Network {
 
                     queue.add(u);
                 }
-
             }
 
             // done with variable v
             color.put(v, Color.BLACK);
         }
-
 
         // independents
         return true;

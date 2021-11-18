@@ -9,7 +9,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -54,12 +53,12 @@ public class XML {
     }
 
     /**
-     * build a bayesian network by a given xml document
+     * build a list of variables by a given xml document
      *
-     * @param doc - given xml document
-     * @return - bayesian network
+     * @param doc given xml document
+     * @return list fo variables
      */
-    public static List<Variable> build_network(Document doc) {
+    public static List<Variable> build_variables(Document doc) {
 
         // final names of each variable
         List<String> names = new ArrayList<>();

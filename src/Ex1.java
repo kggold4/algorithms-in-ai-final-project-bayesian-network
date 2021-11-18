@@ -32,7 +32,7 @@ public class Ex1 {
                     doc = XML.readXMLFile(line);
 
                     // build the bayes network from the document
-                    variables = new ArrayList<>(XML.build_network(doc));
+                    variables = new ArrayList<>(XML.build_variables(doc));
                 }
 
                 // append query to queries
@@ -46,10 +46,8 @@ public class Ex1 {
         net = new Network(variables);
         System.out.println(net);
 
-        System.out.println("E_|_B: " + net.bayes_ball("A", "B", null));
-        net.CALL();
-
-//        System.out.println("E_|_B|J" + net.bayes_ball("A", "B", List.of(new String[]{"J"})));
+        System.out.println("E_|_B = " + net.bayes_ball("A", "B", null));
+        System.out.println("E_|_B|J = " + net.bayes_ball("A", "B", List.of(new String[]{"J"})));
 
     }
 }
