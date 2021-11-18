@@ -55,9 +55,6 @@ public class Ex1 {
         // check queries
         System.out.println(net);
 
-//        System.out.println("E_|_B = " + net.bayes_ball("B", "E", null));
-//        System.out.println("E_|_B|J = " + net.bayes_ball("B", "E", List.of(new String[]{"J"})));
-
         List<String> split_queries = List.of(queries.toString().split(split_mark));
         System.out.println("queries: ");
         int i = 1;
