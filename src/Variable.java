@@ -116,10 +116,11 @@ public class Variable {
      */
     @Override
     public String toString() {
-        String output = "";
-        output += this.name;
-        output += CPTBuilder.toString(this.cpt);
-        return output;
+        return "" + this.name;
+    }
+
+    public HashMap<String, Double> getCPT() {
+        return this.cpt;
     }
 
     public static void main(String[] args) {

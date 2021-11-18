@@ -55,6 +55,7 @@ public class CPTBuilder {
      * @param in
      * @return
      */
+    @SafeVarargs
     private static Stream<String> cartesian_outcomes(BinaryOperator<String> aggregator,
                                                      Supplier<Stream<java.lang.String>>... in) {
         return Arrays.stream(in)
@@ -63,21 +64,13 @@ public class CPTBuilder {
                                 .map(u2 -> aggregator.apply(u1, u2))))
                 .orElse(Stream::empty).get();
     }
-
-    /**
-     * this function returns a string of a given CPT hashMap (for printing)
-     *
-     * @param map - given CPT hashmap
-     * @return CPT hashmap to string
-     */
-    public static String toString(HashMap<String, Double> map) {
-        StringBuilder output = new StringBuilder();
-        Iterator<Map.Entry<String, Double>> iter = map.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<String, Double> pair = iter.next();
-            output.append(pair.getKey()).append(" : ").append(pair.getValue()).append("\n");
-            iter.remove();
-        }
-        return output.toString();
-    }
 }
+
+
+//public static <K, V> String HashMapToString(HashMap<K, V> map) {
+//        StringBuilder output = new StringBuilder();
+//        map.entrySet().forEach(entry -> {
+//            output.append(pair.getKey()).append(" : ").append(pair.getValue()).append("\n");
+//        });
+//        return output.toString();
+//    }
