@@ -10,6 +10,7 @@ public class Variable {
     private double[] values;
     private HashMap<String, Double> cpt;
     private boolean shaded;
+    public boolean uninitialized;
 
     /**
      * constructor to create a variable
@@ -24,6 +25,7 @@ public class Variable {
         this.outcomes = outcomes;
         this.cpt = new HashMap<>();
         this.shaded = false;
+        this.uninitialized = false;
         initialize_parents(values, parents);
     }
 
@@ -38,6 +40,7 @@ public class Variable {
         this.outcomes = outcomes;
         this.cpt = new HashMap<>();
         this.shaded = false;
+        this.uninitialized = false;
     }
 
     /**
@@ -73,6 +76,8 @@ public class Variable {
             this.cpt = CPTBuilder.BuildCPTHashMap(this.values, all_outcomes, all_names);
 
         }
+        this.uninitialized = true;
+
     }
 
     /**

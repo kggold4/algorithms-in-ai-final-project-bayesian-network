@@ -11,11 +11,10 @@ public class UtilFunctions {
      */
     public static <K, V> String HashMapToString(HashMap<K, V> map) {
         StringBuilder output = new StringBuilder();
-        Iterator<Map.Entry<K, V>> iter = map.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<K, V> pair = iter.next();
-            output.append(pair.getKey()).append(" : ").append(pair.getValue()).append("\n");
-            iter.remove();
+        for (K name: map.keySet()) {
+            String key = name.toString();
+            String value = map.get(name).toString();
+            output.append(key).append(" : ").append(value).append("\n");
         }
         return output.toString();
     }

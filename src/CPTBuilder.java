@@ -65,12 +65,3 @@ public class CPTBuilder {
                 .orElse(Stream::empty).get();
     }
 }
-
-
-//public static <K, V> String HashMapToString(HashMap<K, V> map) {
-//        StringBuilder output = new StringBuilder();
-//        map.entrySet().forEach(entry -> {
-//            output.append(pair.getKey()).append(" : ").append(pair.getValue()).append("\n");
-//        });
-//        return output.toString();
-//    }

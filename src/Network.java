@@ -15,26 +15,12 @@ public class Network {
 
     // direction of going throw childes or parents in bayes ball algorithm
     private boolean direction_to_parents;
+    private boolean uninitialized;
 
     // this hashmap will contain the parents or the childes hashmaps depends on the direction_to_parents boolean value
     private HashMap<String, List<Variable>> current_direction;
 
     private static final List<Variable> empty_list = new ArrayList<>();
-
-    private boolean uninitialized;
-
-    /**
-     * empty constructor
-     */
-    public Network() {
-        this.variables = new ArrayList<>();
-        this.parents = new HashMap<>();
-        this.childes = new HashMap<>();
-        this.current_direction = new HashMap<>();
-        this.direction_to_parents = false;
-        this.uninitialized = false;
-        initialize_parents_childes();
-    }
 
     /**
      * constructor by given list of variables to fill network
@@ -42,34 +28,40 @@ public class Network {
      * @param variables - list of variables
      */
     public Network(List<Variable> variables) {
-        this.variables = new ArrayList<>(variables);
+        this.variables = new ArrayList<>();
+        this.variables.addAll(variables);
+
         this.parents = new HashMap<>();
         this.childes = new HashMap<>();
         this.current_direction = new HashMap<>();
         this.direction_to_parents = false;
         this.uninitialized = false;
         initialize_parents_childes();
+        System.out.println("network created");
+        System.out.println(this.parents.containsKey("A"));
     }
 
     /**
      * initialize parents and childes to all variables in the network
      */
     private void initialize_parents_childes() {
-        for (Variable variable : this.variables) {
+
+        for(Variable variable : this.variables) {
             List<Variable> variable_parents = variable.getParents();
-            System.out.println("variable: " + variable.getName() + ", variable_parents: " + variable_parents);
 
             // add parents for current variable
             this.parents.put(variable.getName(), variable_parents);
+            System.out.println(this.parents.containsKey("E"));
+            System.out.println("putting in parents variable: (" + variable.getName() + "), " + variable_parents);
 
             // add child for each parent of current variable
             for (Variable parent : variable_parents) {
 
                 // if current parent already has child
-                if (this.childes.containsKey(parent)) {
+                if (this.childes.containsKey(parent.getName())) {
 
                     // add current variable as child
-                    this.childes.get(parent).add(variable);
+                    this.childes.get(parent.getName()).add(variable);
 
                     // if current parent do not had childes
                 } else {
@@ -84,10 +76,10 @@ public class Network {
 
         // fixing hashmaps for variables without parents or childes
         for (Variable variable : this.variables) {
-            if (!this.parents.containsKey(variable)) {
+            if (!this.parents.containsKey(variable.getName())) {
                 this.parents.put(variable.getName(), empty_list);
             }
-            if (!this.childes.containsKey(variable)) {
+            if (!this.childes.containsKey(variable.getName())) {
                 this.childes.put(variable.getName(), empty_list);
             }
         }
@@ -117,12 +109,17 @@ public class Network {
      * @return the variable
      */
     private Variable getVariableByName(String name) {
-        for (Variable variable : variables) {
-            if (Objects.equals(variable.getName(), name)) {
+        for (int i = 0; i < this.size(); i++) {
+            Variable variable = this.variables.get(i);
+            if (variable.getName().equals(name)) {
                 return variable;
             }
         }
         return null;
+    }
+
+    public void CALL() {
+        print_childes_parents();
     }
 
     /**
@@ -132,6 +129,13 @@ public class Network {
      * @return true if and only if the start_node and the destination_node are independents
      */
     public boolean bayes_ball(String start_node, String destination_node, List<String> evidences_nodes_names) {
+
+//        if (!uninitialized) {
+//            System.out.println("asdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnfasdfkaosfnasnf");
+//        }
+
+        print_childes_parents();
+
         List<Variable> evidences_nodes = new ArrayList<>();
         if (evidences_nodes_names != null) {
             for (String name : evidences_nodes_names) {
@@ -153,7 +157,15 @@ public class Network {
      */
     public boolean bayes_ball(Variable start_node, Variable destination_node, List<Variable> evidences_nodes) {
 
-        if(!this.uninitialized) this.initialize_parents_childes();
+        if (!this.uninitialized) {
+            System.out.println("not goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot goodnot good");
+            this.initialize_parents_childes();
+        }
+
+        System.out.println("YYYYYYYYYYYYYY");
+        System.out.println(start_node.getName() + " : " + this.parents.containsKey(start_node.getName()));
+        System.out.println(destination_node.getName() + " : " + this.parents.containsKey(destination_node.getName()));
+        print_childes_parents();
 
         // if (this.parents.get(start_node).isEmpty() && this.parents.get(destination_node).isEmpty() && evidences_nodes.isEmpty()) {
         //     return true;
@@ -175,7 +187,7 @@ public class Network {
         // bayes ball algorithm with the using of BFS algorithm
         while (!queue.isEmpty()) {
             Variable v = queue.poll();
-//            System.out.println("trying to get " + v + " from " + CPTBuilder.HashMapToString(this.parents));
+
             for (Variable u : this.current_direction.get(v.getName())) {
 
                 if (color.get(u) == Color.WHITE) {
@@ -211,15 +223,16 @@ public class Network {
     }
 
 
-    public double variable_elimination() {
-        return 0.0;
-    }
+    //    public double variable_elimination() {
+    //        return 0.0;
+    //    }
 
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        for (Variable variable : variables) {
-            result.append(variable).append(":\n").append(UtilFunctions.HashMapToString(variable.getCPT()));
+        result.append("TO STRING NETWORK:\n");
+        for (Variable variable : this.variables) {
+            result.append(variable.getName()).append(":\n").append(UtilFunctions.HashMapToString(variable.getCPT()));
         }
         return result.toString();
     }

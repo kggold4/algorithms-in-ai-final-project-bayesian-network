@@ -9,6 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class XML {
      * @param doc - given xml document
      * @return - bayesian network
      */
-    public static Network build_network(Document doc) {
+    public static List<Variable> build_network(Document doc) {
 
         // final names of each variable
         List<String> names = new ArrayList<>();
@@ -144,7 +145,7 @@ public class XML {
         List<Variable> variables = new ArrayList<>();
 
         // for each variable initialize parents
-        variableHashMap.forEach((key, value1) -> {
+        variableHashMap.forEach((key, value) -> {
             List<Double> t1 = values.get(key);
             List<Variable> s1 = parents.get(key);
 
@@ -154,12 +155,12 @@ public class XML {
             Variable[] s2 = new Variable[s1.size()];
             for (int i = 0; i < s2.length; i++) s2[i] = s1.get(i);
 
-            value1.initialize_parents(t2, s2);
-            variables.add(value1);
+            value.initialize_parents(t2, s2);
+            variables.add(value);
         });
 
         // return bayesian network
-        return new Network(variables);
+        return variables;
     }
 
     /**
