@@ -122,6 +122,8 @@ public class Network {
      */
     public boolean bayes_ball(String start_node, String destination_node, List<String> evidences_nodes_names) {
 
+        System.out.println("start_node: " + start_node + ", destination_node: " + destination_node + ", evidences_nodes_names: " + evidences_nodes_names);
+
         List<Variable> evidences_nodes = new ArrayList<>();
         if (evidences_nodes_names != null) {
             for (String name : evidences_nodes_names) {
@@ -151,16 +153,15 @@ public class Network {
              return true;
          }
 
-         HashMap<Variable, Boolean> visited = new HashMap<>();
-
         // set all the given evidences as shaded
         for (Variable variable : this.variables) {
             variable.setShade(evidences_nodes.contains(variable));
-            visited.put(variable, false);
         }
 
         // for each variable save if visited
-        visited.put(start_node, true);
+        HashMap<Variable, Visited> color = new HashMap<>();
+        for (Variable variable : this.variables) color.put(variable, Visited.NO);
+        color.put(start_node, Visited.YES);
 
         Queue<Variable> queue = new LinkedList<>();
         queue.add(start_node);
@@ -173,13 +174,13 @@ public class Network {
             for (Variable u : this.current_direction.get(v.getName())) {
 //                System.out.println("Neighbor: " + u.getName() + ", color: " + color.get(u).toString());
 
-                if (!visited.get(u)) {
+                if (color.get(u) == Visited.NO) {
 
                     if (u.isShaded()) {
 
                         // System.out.println(u + " is shaded");
                         // go with parents
-                        visited.put(v, true);
+                        color.put(v, Visited.NO);
                         this.direction_to_parents = true;
                         this.changeDirection();
 
@@ -187,7 +188,7 @@ public class Network {
 
                         // System.out.println("change color of " + u + " to " + Color.GREY.toString());
                         // if the variable is not evidence mark him as GREY - visited
-                        visited.put(u, true);
+                        color.put(u, Visited.YES);
                     }
 
                     // dependents - found the destination variable
