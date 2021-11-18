@@ -162,6 +162,10 @@ public class XML {
         return variables;
     }
 
+    public static Query typeOfQuery(String query) {
+        return query.charAt(0) == 'P' ? Query.VE : Query.BAYES;
+    }
+
     /**
      * this function gets a string of double values from the TABLE tag in the DEFINITION tag in the xml file
      * and return this values in a list of doubles.

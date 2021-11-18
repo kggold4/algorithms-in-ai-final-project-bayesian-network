@@ -29,10 +29,10 @@ public class Ex1 {
                 if (counter_line == 0) {
 
                     // getting the document of the xml file
-                    doc = XML.readXMLFile(line);
+                    doc = XMLReader.readXMLFile(line);
 
                     // build the variables for the bayesian network from given document
-                    variables = new ArrayList<>(XML.build_variables(doc));
+                    variables = new ArrayList<>(XMLReader.build_variables(doc));
 
                     // get queries as string from the other lines
                 } else {
@@ -50,7 +50,7 @@ public class Ex1 {
         Network net = new Network(variables);
 
         // output text for output file
-        String output = "";
+        StringBuilder output = new StringBuilder();
 
         // check queries
         System.out.println(net);
@@ -63,13 +63,32 @@ public class Ex1 {
         int i = 1;
         for(String q : split_queries) {
 
-            System.out.println(i + ") " + q);
+            if(QueryReader.typeOfQuery(q).equals(QueryType.BAYES)) {
+                List<String> ball_variables = QueryReader.bayesBallQuery(q);
+                String first_variable = ball_variables.get(0);
+                String second_variable = ball_variables.get(1);
+                List<String> evidence_variables = new ArrayList<>();
+                for(int j = 2; j < ball_variables.size(); j++) {
+                    evidence_variables.add(ball_variables.get(j));
+                }
+                if(net.bayes_ball(first_variable, second_variable, evidence_variables)) {
+                    output.append("yes");
+                } else {
+                    output.append("no");
+                }
+            } else if(QueryReader.typeOfQuery(q).equals(QueryType.VE)) {
+
+            }
+
+            output.append("\n");
+
+            System.out.println(i + ") " + q + ", type: " + QueryReader.typeOfQuery(q));
             i++;
         }
 
 
         // need to save output to output txt file...
-        System.out.println(output);
+        System.out.println("\n\noutput:\n" + output);
 
     }
 }
