@@ -62,6 +62,7 @@ public class Ex1 {
 
             System.out.println(i + ") " + q + ", type: " + QueryReader.typeOfQuery(q));
 
+            // using bayes ball algorithm
             if (QueryReader.typeOfQuery(q).equals(QueryType.BAYES)) {
                 List<String> ball_variables = QueryReader.bayesBallQuery(q);
                 String first_variable = ball_variables.get(0);
@@ -77,6 +78,8 @@ public class Ex1 {
                 } else {
                     output.append("no");
                 }
+
+                // using variable elimination algorithm
             } else if (QueryReader.typeOfQuery(q).equals(QueryType.VE)) {
 
             }

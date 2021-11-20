@@ -143,13 +143,12 @@ public class Network {
      */
     public boolean bayes_ball(Variable start_node, Variable destination_node, List<Variable> evidences_nodes) {
 
-         if (!this.uninitialized) this.initialize_parents_childes();
+        if (!this.uninitialized) this.initialize_parents_childes();
 
-         // if the start node and the destination node do not have any parents, and we not have any evidence they are independents
-         if (this.parents.get(start_node.getName()).isEmpty() && this.parents.get(destination_node.getName()).isEmpty() && evidences_nodes.isEmpty()) {
-             // System.out.println("first case");``
-             return true;
-         }
+        // if the start node and the destination node do not have any parents, and we not have any evidence they are independents
+        if (this.parents.get(start_node.getName()).isEmpty() && this.parents.get(destination_node.getName()).isEmpty() && evidences_nodes.isEmpty()) {
+            return true;
+        }
 
         // set all the given evidences as shaded
         for (Variable variable : this.variables) {
@@ -167,32 +166,23 @@ public class Network {
         // bayes ball algorithm with the using of BFS algorithm
         while (!queue.isEmpty()) {
             Variable v = queue.poll();
-            // System.out.println("poll: " + v.getName());
 
             for (Variable u : this.current_direction.get(v.getName())) {
-//                System.out.println("Neighbor: " + u.getName() + ", color: " + color.get(u).toString());
-
                 if (color.get(u) == Visited.NO) {
-
                     if (u.isShaded()) {
 
-                        // System.out.println(u + " is shaded");
                         // go with parents
                         color.put(v, Visited.NO);
                         this.direction_to_parents = true;
                         this.changeDirection();
 
-                    } else {
-
-                        // System.out.println("change color of " + u + " to " + Color.GREY.toString());
                         // if the variable is not evidence mark him as GREY - visited
+                    } else {
                         color.put(u, Visited.YES);
                     }
 
                     // dependents - found the destination variable
                     if (u == destination_node) {
-
-                        // System.out.println("found destination " + u);
                         return false;
                     }
 
@@ -201,7 +191,6 @@ public class Network {
             }
 
             // done with variable v
-//            color.put(v, Color.BLACK);
         }
 
         // independents
@@ -209,9 +198,10 @@ public class Network {
     }
 
 
-    //    public double variable_elimination() {
-    //        return 0.0;
-    //    }
+        public double variable_elimination(Variable hypothesis, List<Variable> evidence, List<String> elimination_order_names) {
+
+            return 0.0;
+        }
 
     @Override
     public String toString() {
