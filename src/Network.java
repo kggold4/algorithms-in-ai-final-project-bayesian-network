@@ -122,6 +122,8 @@ public class Network {
      */
     public boolean bayes_ball(String start_node, String destination_node, List<String> evidences_nodes_names) {
 
+        System.out.println("start_node: " + start_node + ", destination_node: " + destination_node + ", evidences_nodes_names: " + evidences_nodes_names);
+
         List<Variable> evidences_nodes = new ArrayList<>();
         if (evidences_nodes_names != null) {
             for (String name : evidences_nodes_names) {
@@ -197,14 +199,33 @@ public class Network {
         return true;
     }
 
+    public double variable_elimination(String hypothesis, List<String> evidence, List<String> elimination_order_names) {
 
-        public double variable_elimination(Variable hypothesis, List<Variable> evidence, List<String> elimination_order_names) {
-            double value = 0.0;
-
-
-
-            return value;
+        List<Variable> evidence_variables = new ArrayList<>();
+        if(evidence != null) {
+            for (String s : evidence) {
+                evidence_variables.add(getVariableByName(s));
+            }
         }
+        List<Variable> elimination_variables = new ArrayList<>();
+        if(elimination_order_names != null) {
+            for (String s : elimination_order_names) {
+                elimination_variables.add(getVariableByName(s));
+            }
+        }
+
+        return variable_elimination(getVariableByName(hypothesis), evidence_variables, elimination_variables);
+    }
+
+
+    public double variable_elimination(Variable hypothesis, List<Variable> evidence, List<Variable> elimination_order_names) {
+
+        System.out.println("hypothesis: " + hypothesis + ", evidence: " + evidence + ", elimination_order_names: " + elimination_order_names);
+
+        double value = 0.0;
+
+        return value;
+    }
 
     @Override
     public String toString() {

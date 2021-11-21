@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,71 +20,62 @@ public class QueryReader {
 
     /**
      * getting a bayes ball query and return a list with the variables
+     *
      * @param query the given query from the text file
-     * @return
+     * @return list with the variables
      */
     public static List<String> bayesBallQuery(String query) {
-        List<String> output = new ArrayList<>();
-        int i = 0;
 
-        StringBuilder variable = new StringBuilder();
+        String[] half = query.split("\\|");
+        String[] first_second = half[0].split("-");
 
-        // getting first variable
-        while(i < query.length()) {
-            if(query.charAt(i) == '-') {
-                i++;
-                break;
+        List<String> output = new ArrayList<>(Arrays.asList(first_second));
+
+        if (half.length > 1) {
+            String[] evidence = half[1].split(",");
+            for (String s : evidence) {
+                StringBuilder ve = new StringBuilder();
+                for(int j = 0; j < s.length() - 2; j++) {
+                    ve.append(s.charAt(j));
+                }
+                output.add(ve.toString());
             }
-            variable.append(query.charAt(i));
-            i++;
         }
-
-        output.add(variable.toString());
-
-        // clear string builder
-        variable.setLength(0);
-
-        // getting second variable
-        while(i < query.length()) {
-            if(query.charAt(i) == '|') {
-                i++;
-                break;
-            }
-            variable.append(query.charAt(i));
-            i++;
-        }
-
-        output.add(variable.toString());
-
-        // clear string builder
-        variable.setLength(0);
-
-        boolean flag = false;
-
-        // getting the rest of variable as evidence
-        while(i < query.length()) {
-            if(query.charAt(i) == ',') {
-                flag = false;
-                i++;
-                continue;
-            }
-            if(flag) {
-                i++;
-                continue;
-            }
-            if(query.charAt(i) == '=') {
-                flag = true;
-                output.add(variable.toString());
-                variable.setLength(0);
-                i++;
-                continue;
-            }
-            variable.append(query.charAt(i));
-            i++;
-        }
-
-//        System.out.println("Variables Bayes: " + output);
 
         return output;
     }
+
+    public static List<String> variableEliminationQuery(String query) {
+        List<String> output = new ArrayList<>();
+        String[] half = query.split("\\|");
+        StringBuilder hypothesis = new StringBuilder();
+        for(int i = 2; i < half[0].length() - 2; i++) {
+            hypothesis.append(half[0].charAt(i));
+        }
+        output.add(hypothesis.toString());
+        String[] split_evidence_order = half[1].split(" ");
+        String[] evidence = split_evidence_order[0].split(",");
+        for(int i = 0; i < evidence.length; i++) {
+            String s = evidence[i];
+            StringBuilder ev = new StringBuilder();
+            int end = 2;
+            if(i == evidence.length - 1) end = 3;
+            for(int j = 0; j < s.length() - end; j++) {
+                ev.append(s.charAt(j));
+            }
+            output.add(ev.toString());
+        }
+        return output;
+    }
+
+    public static List<String> variableEliminationQueryVariableOrder(String query) {
+        List<String> output = new ArrayList<>();
+        String[] half = query.split("\\|");
+        String[] split_evidence_order = half[1].split(" ");
+        String[] order = split_evidence_order[1].split("-");
+        Collections.addAll(output, order);
+        return output;
+    }
+
+
 }
