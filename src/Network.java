@@ -199,8 +199,11 @@ public class Network {
 
 
         public double variable_elimination(Variable hypothesis, List<Variable> evidence, List<String> elimination_order_names) {
+            double value = 0.0;
 
-            return 0.0;
+
+
+            return value;
         }
 
     @Override
