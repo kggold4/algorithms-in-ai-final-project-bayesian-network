@@ -234,42 +234,83 @@ public class Network {
 
 
     /**
-     * @param hypothesis       the variable Q we ask his probability in the query
-     * @param hypothesis_value the variable Q value
-     * @param evidence         the list of the evidence variables (that we got their outcome values by the query)
-     * @param evidence_values  the outcomes value for each evidence variable
-     * @param hidden           the hidden variables we want to eliminate
+     * @param hypothesis         the variable Q we ask his probability in the query
+     * @param hypothesis_value   the variable Q value
+     * @param evidence_variables the list of the evidence variables (that we got their outcome values by the query)
+     * @param evidence_values    the outcomes value for each evidence variable
+     * @param hidden             the hidden variables we want to eliminate
      * @return the probability value of the query
      */
-    private double variable_elimination(Variable hypothesis, String hypothesis_value, List<Variable> evidence, List<String> evidence_values, List<Variable> hidden) {
+    private double variable_elimination(Variable hypothesis, String hypothesis_value, List<Variable> evidence_variables, List<String> evidence_values, List<Variable> hidden) {
 
         System.out.println("variable elimination SECOND function:");
-        System.out.println("hypothesis: " + hypothesis + ", hypothesis value: " + hypothesis_value + ", evidence: " + evidence + ", evidence values: " + evidence_values + ", hidden: " + hidden);
+        System.out.println("hypothesis: " + hypothesis + ", hypothesis value: " + hypothesis_value + ", evidence: " + evidence_variables + ", evidence values: " + evidence_values + ", hidden: " + hidden);
 
         double value = 0.0;
 
-        if (!hidden.isEmpty()) {
+        // insert evidence variables and outcome value to one hashmap
+        HashMap<Variable, String> evidence = new HashMap<>();
+        for (int i = 0; i < evidence_values.size(); i++) {
+            evidence.put(evidence_variables.get(i), evidence_values.get(i));
+        }
 
-            for (Variable variable : hidden) {
-                HashMap<String, Double> map = updateLocalCpt(evidence, evidence_values, variable);
-                System.out.println(UtilFunctions.hashMapToString(map));
+        // store local hashmap of factors for each variable
+        HashMap<String, HashMap<String, Double>> factors = new HashMap<>();
+        for (Variable variable : this.variables) {
+            factors.put(variable.getName(), new HashMap<>(variable.getCPT()));
+        }
+
+        // local cpt update by evidence for each hidden variable
+        if (!hidden.isEmpty()) {
+            for (Variable h : hidden) {
+                HashMap<String, Double> hashmap = updateLocalCpt(evidence_variables, evidence_values, h);
+                if (!hashmap.isEmpty()) factors.put(h.getName(), hashmap);
             }
 
         }
-        // getting first hidden variable
-//            Variable variable_to_eliminate = hidden.get(0);
-//            hidden.remove(0);
 
-//            for (Variable variable : this.variables) {
-//                HashMap<String, Double> cpt = variable.getCPT();
-//                for (String vars : cpt.keySet()) {
-//                    if (vars.contains(variable_to_eliminate.getName())) {
-////                        System.out.println("variable: " + variable.getName());
-////                        System.out.println("vars: " + vars);
-//                    }
+        // for each evidence variable fix his cpt with his outcome value
+        for (Map.Entry<Variable, String> e : evidence.entrySet()) {
+            // get deep copy of evidence current cpt
+            HashMap<String, Double> current_cpt = new HashMap<>(e.getKey().getCPT());
+            HashMap<String, Double> new_cpt = new HashMap<>();
+            for (Map.Entry<String, Double> cpt_line : current_cpt.entrySet()) {
+                StringBuilder q = new StringBuilder();
+                q.append(e.getKey().getName()).append("=").append(e.getValue());
+                if (cpt_line.getKey().contains(q)) {
+                    String new_key = cpt_line.getKey();
+                    List<String> new_key_split = new ArrayList<>(List.of(new_key.split(",")));
+                    String key_to_change = CPTBuilder.combineWithCommas(new_key_split);
+                    new_cpt.put(key_to_change, cpt_line.getValue());
+                }
+            }
+            factors.put(e.getKey().getName(), new_cpt);
+        }
+
+        for (Map.Entry<String, HashMap<String, Double>> e : factors.entrySet()) {
+            System.out.println("new factor for " + e.getKey() + ":");
+            System.out.println(UtilFunctions.hashMapToString(e.getValue()));
+        }
+
+        // join all factors for each hidden variable
+        if (!hidden.isEmpty()) {
+            for (Variable h : hidden) {
+
+            }
+        }
+
+
+
+//        for (Map.Entry<String, Double> key : hidden_factor.entrySet()) {
+//                if (key.getKey().contains(full_evidence.toString())) {
+//                    String new_key = key.getKey();
+//                    List<String> new_key_split = new ArrayList<>(List.of(new_key.split(",")));
+//                    new_key_split.remove(full_evidence.toString());
+//                    String key_to_change = CPTBuilder.combineWithCommas(new_key_split);
+//                    factor.put(key_to_change, key.getValue());
 //                }
 //            }
-//        }
+
 
         return value;
     }
