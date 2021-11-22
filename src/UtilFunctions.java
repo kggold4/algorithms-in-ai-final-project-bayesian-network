@@ -7,7 +7,7 @@ public class UtilFunctions {
      * @param hashmap - given hashmap
      * @return hashmap to string
      */
-    public static <K, V> String HashMapToString(HashMap<K, V> hashmap) {
+    public static <K, V> String hashMapToString(HashMap<K, V> hashmap) {
         StringBuilder output = new StringBuilder();
         for (K name : hashmap.keySet()) {
             String key = name.toString();
@@ -15,5 +15,9 @@ public class UtilFunctions {
             output.append(key).append(" : ").append(value).append("\n");
         }
         return output.toString();
+    }
+
+    public static <K, V> HashMap<K, V> deepCopyHashMap(HashMap<K, V> hashmap) {
+        return new HashMap<>(hashmap);
     }
 }

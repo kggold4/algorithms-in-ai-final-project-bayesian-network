@@ -17,7 +17,7 @@ public class CPTBuilder {
      * @param names    - name for each variable
      * @return - .
      */
-    public static HashMap<String, Double> BuildCPTHashMap(double[] values, List<List<String>> outcomes, List<String> names) {
+    public static LinkedHashMap<String, Double> BuildCPTHashMap(double[] values, List<List<String>> outcomes, List<String> names) {
         int n = outcomes.size();
         var supp = new Supplier[n];
         for (int i = 0; i < n; i++) {
@@ -26,7 +26,7 @@ public class CPTBuilder {
         }
         Stream<String> result = cartesian_outcomes((a, b) -> a + b, supp);
         List<String> cartesian_result = result.collect(Collectors.toList());
-        HashMap<String, Double> cpt = new HashMap<>();
+        LinkedHashMap<String, Double> cpt = new LinkedHashMap<>();
         for (int i = 0; i < values.length; i++) {
             cpt.put(fixCPTHashMapWithParentsNames(cartesian_result.get(i), names), values[i]);
         }
@@ -63,5 +63,14 @@ public class CPTBuilder {
                         .flatMap(u1 -> v2.get()
                                 .map(u2 -> aggregator.apply(u1, u2))))
                 .orElse(Stream::empty).get();
+    }
+
+    public static String combineWithCommas(List<String> list) {
+        StringBuilder output = new StringBuilder();
+        for(int i = 0; i < list.size(); i++) {
+            output.append(list.get(i));
+            if(i != list.size() - 1) output.append(",");
+        }
+        return output.toString();
     }
 }

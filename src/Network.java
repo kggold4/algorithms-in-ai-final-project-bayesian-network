@@ -90,14 +90,6 @@ public class Network {
         return this.variables.size();
     }
 
-    private void changeDirection() {
-        if (this.direction_to_parents) {
-            this.current_direction = this.parents;
-        } else {
-            this.current_direction = this.childes;
-        }
-    }
-
     /**
      * getting a variable by his given name
      *
@@ -115,6 +107,10 @@ public class Network {
     }
 
     /**
+     * bayes ball algorithm using BFS algorithm
+     * return true if and only if the start_node and the destination_node are independents
+     * else, return false
+     *
      * @param start_node            starting variable name position of the BFS algorithm
      * @param destination_node      the variable the algorithm is searching for
      * @param evidences_nodes_names evidence variables in the query
@@ -134,10 +130,6 @@ public class Network {
     }
 
     /**
-     * bayes ball algorithm using BFS algorithm
-     * return true if and only if the start_node and the destination_node are independents
-     * else, return false
-     *
      * @param start_node       starting variable position of the BFS algorithm
      * @param destination_node the variable the algorithm is searching for
      * @param evidences_nodes  evidence variables in the query
@@ -193,12 +185,20 @@ public class Network {
     }
 
     /**
+     * change the direction in the bayes ball algorithm in which neighbors of variable they go throw - parent or childes
+     */
+    private void changeDirection() {
+        if (this.direction_to_parents) this.current_direction = this.parents;
+        else this.current_direction = this.childes;
+    }
+
+    /**
      * variable elimination algorithm function
      *
-     * @param hypothesis
-     * @param evidence
-     * @param hidden
-     * @return
+     * @param hypothesis the variable Q we ask his probability in the query
+     * @param evidence   the list of the evidence variables (that we got their outcome values by the query)
+     * @param hidden     the hidden variables we want to eliminate
+     * @return the probability value of the query
      */
     public double variable_elimination(String hypothesis, List<String> evidence, List<String> hidden) {
 
@@ -233,6 +233,14 @@ public class Network {
     }
 
 
+    /**
+     * @param hypothesis       the variable Q we ask his probability in the query
+     * @param hypothesis_value the variable Q value
+     * @param evidence         the list of the evidence variables (that we got their outcome values by the query)
+     * @param evidence_values  the outcomes value for each evidence variable
+     * @param hidden           the hidden variables we want to eliminate
+     * @return the probability value of the query
+     */
     private double variable_elimination(Variable hypothesis, String hypothesis_value, List<Variable> evidence, List<String> evidence_values, List<Variable> hidden) {
 
         System.out.println("variable elimination SECOND function:");
@@ -240,40 +248,85 @@ public class Network {
 
         double value = 0.0;
 
-        while (!hidden.isEmpty()) {
+        if (!hidden.isEmpty()) {
 
-            // getting first hidden variable
-            Variable variable_to_eliminate = hidden.get(0);
-            hidden.remove(0);
-
-            for (Variable variable : this.variables) {
-                HashMap<String, Double> cpt = variable.getCPT();
-                for (String vars : cpt.keySet()) {
-                    if (vars.contains(variable_to_eliminate.getName())) {
-//                        System.out.println("variable: " + variable.getName());
-//                        System.out.println("vars: " + vars);
-                    }
-                }
+            for (Variable variable : hidden) {
+                HashMap<String, Double> map = updateLocalCpt(evidence, evidence_values, variable);
+                System.out.println(UtilFunctions.hashMapToString(map));
             }
+
         }
+        // getting first hidden variable
+//            Variable variable_to_eliminate = hidden.get(0);
+//            hidden.remove(0);
+
+//            for (Variable variable : this.variables) {
+//                HashMap<String, Double> cpt = variable.getCPT();
+//                for (String vars : cpt.keySet()) {
+//                    if (vars.contains(variable_to_eliminate.getName())) {
+////                        System.out.println("variable: " + variable.getName());
+////                        System.out.println("vars: " + vars);
+//                    }
+//                }
+//            }
+//        }
 
         return value;
     }
 
+    /**
+     * this function get a hidden variable with all the evidence variables and their values we get in the variable elimination function
+     * and return the new factor for the hidden variable
+     * (deleting the unrequited values by evidence)
+     * for example if we have the evidence A=T, and the hidden variable B factor contains B values and A values we delete all the A=F values from the factor
+     *
+     * @param evidence list of the evidence variable
+     * @param values   list of the values of the evidence variables
+     * @param hidden   the hidden variable we eliminate
+     * @return the new factor of hidden
+     */
+    private HashMap<String, Double> updateLocalCpt(List<Variable> evidence, List<String> values, Variable hidden) {
+
+        HashMap<String, Double> hidden_factor = hidden.getCPT();
+        HashMap<String, Double> factor = new HashMap<>();
+
+        for (int i = 0; i < evidence.size(); i++) {
+            StringBuilder full_evidence = new StringBuilder();
+            full_evidence.append(evidence.get(i).getName()).append("=").append(values.get(i));
+
+            for (Map.Entry<String, Double> key : hidden_factor.entrySet()) {
+                if (key.getKey().contains(full_evidence.toString())) {
+                    String new_key = key.getKey();
+                    List<String> new_key_split = new ArrayList<>(List.of(new_key.split(",")));
+                    new_key_split.remove(full_evidence.toString());
+                    String key_to_change = CPTBuilder.combineWithCommas(new_key_split);
+                    factor.put(key_to_change, key.getValue());
+                }
+            }
+        }
+
+        return factor;
+    }
+
+    /**
+     * to string function
+     *
+     * @return string represents the network, print each CPT of the variables
+     */
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append("TO STRING NETWORK:\n");
         for (Variable variable : this.variables) {
-            result.append(variable.getName()).append(":\n").append(UtilFunctions.HashMapToString(variable.getCPT()));
+            result.append(variable.getName()).append(":\n").append(UtilFunctions.hashMapToString(variable.getCPT()));
         }
         return result.toString();
     }
 
     public void print_childes_parents() {
         System.out.println("childes are:");
-        System.out.println(UtilFunctions.HashMapToString(this.childes));
+        System.out.println(UtilFunctions.hashMapToString(this.childes));
         System.out.println("parents are:");
-        System.out.println(UtilFunctions.HashMapToString(this.parents));
+        System.out.println(UtilFunctions.hashMapToString(this.parents));
     }
 }
