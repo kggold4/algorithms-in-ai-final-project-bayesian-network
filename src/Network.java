@@ -192,16 +192,36 @@ public class Network {
         return true;
     }
 
+    /**
+     * variable elimination algorithm function
+     *
+     * @param hypothesis
+     * @param evidence
+     * @param hidden
+     * @return
+     */
     public double variable_elimination(String hypothesis, List<String> evidence, List<String> hidden) {
 
+        System.out.println("variable elimination FIRST function:");
         System.out.println("hypothesis: " + hypothesis + ", evidence: " + evidence + ", hidden: " + hidden);
 
+        String[] hypothesis_query = hypothesis.split("=");
+        Variable hypothesis_variable = getVariableByName(hypothesis_query[0]);
+        String hypothesis_value = hypothesis_query[1];
+
+        List<String> evidence_values = new ArrayList<>();
         List<Variable> evidence_variables = new ArrayList<>();
         if (evidence != null) {
-            for (String s : evidence) {
-                evidence_variables.add(getVariableByName(s));
+            for (String evs : evidence) {
+                String[] evidence_queries = evs.split(",");
+                for (String ev : evidence_queries) {
+                    String[] evidence_query = ev.split("=");
+                    evidence_variables.add(getVariableByName(evidence_query[0]));
+                    evidence_values.add(evidence_query[1]);
+                }
             }
         }
+
         List<Variable> hidden_variables = new ArrayList<>();
         if (hidden != null) {
             for (String s : hidden) {
@@ -209,11 +229,14 @@ public class Network {
             }
         }
 
-        return variable_elimination(getVariableByName(hypothesis), evidence_variables, hidden_variables);
+        return variable_elimination(hypothesis_variable, hypothesis_value, evidence_variables, evidence_values, hidden_variables);
     }
 
 
-    private double variable_elimination(Variable hypothesis, List<Variable> evidence, List<Variable> hidden) {
+    private double variable_elimination(Variable hypothesis, String hypothesis_value, List<Variable> evidence, List<String> evidence_values, List<Variable> hidden) {
+
+        System.out.println("variable elimination SECOND function:");
+        System.out.println("hypothesis: " + hypothesis + ", hypothesis value: " + hypothesis_value + ", evidence: " + evidence + ", evidence values: " + evidence_values + ", hidden: " + hidden);
 
         double value = 0.0;
 
