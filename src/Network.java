@@ -143,7 +143,7 @@ public class Network {
      * @param evidences_nodes  evidence variables in the query
      * @return true if and only if the start_node and the destination_node are independents
      */
-    public boolean bayes_ball(Variable start_node, Variable destination_node, List<Variable> evidences_nodes) {
+    private boolean bayes_ball(Variable start_node, Variable destination_node, List<Variable> evidences_nodes) {
 
         if (!this.uninitialized) this.initialize_parents_childes();
 
@@ -179,50 +179,60 @@ public class Network {
                         this.changeDirection();
 
                         // if the variable is not evidence mark him as GREY - visited
-                    } else {
-                        color.put(u, Visited.YES);
-                    }
+                    } else color.put(u, Visited.YES);
 
                     // dependents - found the destination variable
-                    if (u == destination_node) {
-                        return false;
-                    }
-
+                    if (u == destination_node) return false;
                     queue.add(u);
                 }
             }
-
-            // done with variable v
         }
 
         // independents
         return true;
     }
 
-    public double variable_elimination(String hypothesis, List<String> evidence, List<String> elimination_order_names) {
+    public double variable_elimination(String hypothesis, List<String> evidence, List<String> hidden) {
+
+        System.out.println("hypothesis: " + hypothesis + ", evidence: " + evidence + ", hidden: " + hidden);
 
         List<Variable> evidence_variables = new ArrayList<>();
-        if(evidence != null) {
+        if (evidence != null) {
             for (String s : evidence) {
                 evidence_variables.add(getVariableByName(s));
             }
         }
-        List<Variable> elimination_variables = new ArrayList<>();
-        if(elimination_order_names != null) {
-            for (String s : elimination_order_names) {
-                elimination_variables.add(getVariableByName(s));
+        List<Variable> hidden_variables = new ArrayList<>();
+        if (hidden != null) {
+            for (String s : hidden) {
+                hidden_variables.add(getVariableByName(s));
             }
         }
 
-        return variable_elimination(getVariableByName(hypothesis), evidence_variables, elimination_variables);
+        return variable_elimination(getVariableByName(hypothesis), evidence_variables, hidden_variables);
     }
 
 
-    public double variable_elimination(Variable hypothesis, List<Variable> evidence, List<Variable> elimination_order_names) {
-
-        System.out.println("hypothesis: " + hypothesis + ", evidence: " + evidence + ", elimination_order_names: " + elimination_order_names);
+    private double variable_elimination(Variable hypothesis, List<Variable> evidence, List<Variable> hidden) {
 
         double value = 0.0;
+
+        while (!hidden.isEmpty()) {
+
+            // getting first hidden variable
+            Variable variable_to_eliminate = hidden.get(0);
+            hidden.remove(0);
+
+            for (Variable variable : this.variables) {
+                HashMap<String, Double> cpt = variable.getCPT();
+                for (String vars : cpt.keySet()) {
+                    if (vars.contains(variable_to_eliminate.getName())) {
+//                        System.out.println("variable: " + variable.getName());
+//                        System.out.println("vars: " + vars);
+                    }
+                }
+            }
+        }
 
         return value;
     }

@@ -47,35 +47,27 @@ public class QueryReader {
 
     public static List<String> variableEliminationQuery(String query) {
         List<String> output = new ArrayList<>();
-        String[] half = query.split("\\|");
-        StringBuilder hypothesis = new StringBuilder();
-        for(int i = 2; i < half[0].length() - 2; i++) {
-            hypothesis.append(half[0].charAt(i));
+        String[] in_query = query.split(" ");
+        String in_parentheses = in_query[0].substring(2, in_query[0].length() - 1);
+        String[] half = in_parentheses.split("\\|");
+        output.add(half[0]);
+
+        StringBuilder evidence = new StringBuilder();
+        String[] evidences = half[1].split(",");
+        for(int i = 0; i < evidences.length; i++) {
+            evidence.append(evidences[i]);
+            if(i != evidences.length -1) evidence.append(",");
         }
-        output.add(hypothesis.toString());
-        String[] split_evidence_order = half[1].split(" ");
-        String[] evidence = split_evidence_order[0].split(",");
-        for(int i = 0; i < evidence.length; i++) {
-            String s = evidence[i];
-            StringBuilder ev = new StringBuilder();
-            int end = 2;
-            if(i == evidence.length - 1) end = 3;
-            for(int j = 0; j < s.length() - end; j++) {
-                ev.append(s.charAt(j));
-            }
-            output.add(ev.toString());
-        }
+        output.add(evidence.toString());
         return output;
     }
 
-    public static List<String> variableEliminationQueryVariableOrder(String query) {
+    public static List<String> variableEliminationQueryHidden(String query) {
         List<String> output = new ArrayList<>();
         String[] half = query.split("\\|");
-        String[] split_evidence_order = half[1].split(" ");
-        String[] order = split_evidence_order[1].split("-");
-        Collections.addAll(output, order);
+        String[] split_hidden = half[1].split(" ");
+        String[] hidden = split_hidden[1].split("-");
+        Collections.addAll(output, hidden);
         return output;
     }
-
-
 }

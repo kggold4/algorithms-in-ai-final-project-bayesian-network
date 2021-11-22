@@ -83,13 +83,13 @@ public class Ex1 {
             } else if (QueryReader.typeOfQuery(q).equals(QueryType.VE)) {
 
                 List<String> elimination_variables = QueryReader.variableEliminationQuery(q);
-                List<String> order_variables = QueryReader.variableEliminationQueryVariableOrder(q);
+                List<String> hidden = QueryReader.variableEliminationQueryHidden(q);
                 String hypothesis = elimination_variables.get(0);
                 List<String> evidence = new ArrayList<>();
                 for(int j = 1; j < elimination_variables.size(); j++) {
                     evidence.add(elimination_variables.get(j));
                 }
-                double priority = net.variable_elimination(hypothesis, evidence, order_variables);
+                double priority = net.variable_elimination(hypothesis, evidence, hidden);
 
             }
 

@@ -158,7 +158,7 @@ public class XMLReader {
             variables.add(value);
         });
 
-        // return bayesian network
+        // return variables for the bayesian network
         return variables;
     }
 
