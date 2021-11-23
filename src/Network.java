@@ -316,13 +316,32 @@ public class Network {
                     }
                 }
 
+                cpt_to_join.add(factors.get(h.getName()));
+
+                System.out.println("**************************************");
+                for(Map.Entry<String, LinkedHashMap<String, Double>> c : factors.entrySet()) {
+                    System.out.println(c.getKey() + ":");
+                    System.out.println(UtilFunctions.hashMapToString(c.getValue()));
+                }
+                System.out.println("**************************************");
+                System.out.println("######################################");
+                for(LinkedHashMap<String, Double> c : cpt_to_join) {
+                    System.out.println(UtilFunctions.hashMapToString(c));
+                }
+                System.out.println("######################################");
+
                 if (!cpt_to_join.isEmpty()) {
-                    System.out.println("FOR");
-                    LinkedHashMap<String, Double> new_factor = CPTBuilder.joinFactors(cpt_to_join, h, this, evidence);
+                    if(cpt_to_join.size() > 1) {
+                        for(LinkedHashMap<String, Double> ctj : cpt_to_join) {
+                            factors.remove(ctj);
+                        }
+                        LinkedHashMap<String, Double> new_factor = CPTBuilder.joinFactors(cpt_to_join, h);
+                        System.out.println("FIRST:");
+                        System.out.println(UtilFunctions.hashMapToString(new_factor));
+                    }
 
 
-//                LinkedHashMap<String, Double>
-                    // public static LinkedHashMap<String, Double> BuildCPTLinkedHashMap(double[] values, List<List<String>> outcomes, List<String> names) {
+
                 }
             }
         }
