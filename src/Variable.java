@@ -112,9 +112,13 @@ public class Variable {
         return this.shaded;
     }
 
-    public LinkedHashMap<String, Double> getCPT() { return this.cpt; }
+    public LinkedHashMap<String, Double> getCPT() {
+        return this.cpt;
+    }
 
-    public List<String> getOutcomes() { return this.outcomes; }
+    public List<String> getOutcomes() {
+        return this.outcomes;
+    }
 
     /**
      * to string method
