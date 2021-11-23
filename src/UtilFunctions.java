@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -35,18 +36,15 @@ public class UtilFunctions {
         return result;
     }
 
-    public static double[][] cartesianTwoDoubleArrays(double[] s1, double[] s2) {
-        List<double[]> list = new ArrayList<>();
-        for (double v1 : s1) {
-            for (double v2 : s2) {
-                list.add(new double[]{v1, v2});
-            }
-        }
-        double[][] result = new double[list.size()][2];
-        int k = 0;
-        for (double[] i : list) {
-            result[k++] = i;
-        }
-        return result;
+    /**
+     * swapping two hashmaps
+     *
+     * @param X first hashmap
+     * @param Y second hashmap
+     */
+    public static void swap(LinkedHashMap<String, Double> X, LinkedHashMap<String, Double> Y) {
+        LinkedHashMap<String, Double> T = X;
+        X = new LinkedHashMap<String, Double>(Y);
+        Y = T;
     }
 }
