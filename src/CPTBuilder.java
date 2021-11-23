@@ -1,4 +1,4 @@
-import java.lang.reflect.Array;
+
 import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
@@ -29,7 +29,7 @@ public class CPTBuilder {
         List<String> cartesian_result = result.collect(Collectors.toList());
         LinkedHashMap<String, Double> cpt = new LinkedHashMap<>();
         for (int i = 0; i < values.length; i++) {
-            cpt.put(fixCPTLinkedHashMapWithParentsNames(cartesian_result.get(i), names), values[i]);
+            cpt.put(fixCPTLinkedHashMapWithParentsNames(cartesian_result.get(i), names),values[i]);
         }
         return cpt;
     }
@@ -66,28 +66,58 @@ public class CPTBuilder {
                 .orElse(Stream::empty).get();
     }
 
-    public static LinkedHashMap<String, Double> joinFactors(List<LinkedHashMap<String, Double>> cpt_to_join, Variable hidden, Network net, HashMap<String, String> evidence) {
+    /**
+     * join a list of factors to one
+     *
+     * @param cpt_to_join the list of the factors to join
+     * @param hidden      the hidden variable
+     * @return joined factor
+     */
+    public static LinkedHashMap<String, Double> joinFactors(List<LinkedHashMap<String, Double>> cpt_to_join, Variable hidden) {
 
         LinkedHashMap<String, Double> factor = cpt_to_join.get(0);
 
         // for each pair of factors join them
-        for(int i = 1; i < cpt_to_join.size(); i++) {
-            factor = joinTwoFactors(factor, cpt_to_join.get(i), hidden, net, evidence);
-        }
-
-        for(LinkedHashMap<String, Double> cpt : cpt_to_join) {
+        for (int i = 1; i < cpt_to_join.size(); i++) {
+            factor = joinTwoFactors(factor, cpt_to_join.get(i), hidden);
         }
 
         return factor;
     }
 
-    private static LinkedHashMap<String, Double> joinTwoFactors(LinkedHashMap<String, Double> X, LinkedHashMap<String, Double> Y, Variable hidden, Network net, HashMap<String, String> evidence) {
+    /**
+     * join two factors function
+     *
+     * @param X      the first factor
+     * @param Y      the second factor
+     * @param hidden the hidden variable
+     * @return new factor of X and Y combined
+     */
+    private static LinkedHashMap<String, Double> joinTwoFactors(LinkedHashMap<String, Double> X, LinkedHashMap<String, Double> Y, Variable hidden) {
+
+        if(X.size() < Y.size()) {
+            UtilFunctions.swap(X, Y);
+        }
+
+        System.out.println("////////////////////////////////////////////");
+        System.out.println(UtilFunctions.hashMapToString(X));
+        System.out.println(UtilFunctions.hashMapToString(Y));
+        System.out.println("////////////////////////////////////////////");
 
         int i;
 
         // get the outcome hashmaps for X and Y
         HashMap<String, List<String>> X_outcomes = getNamesAndOutcomes(X);
+//        for(Map.Entry<String, List<String>> x : X_outcomes.entrySet()) {
+//            System.out.println(x.getKey());
+//            System.out.println(x.getValue());
+//        }
+//        System.out.println("---------------------------------------------------");
         HashMap<String, List<String>> Y_outcomes = getNamesAndOutcomes(Y);
+//        for(Map.Entry<String, List<String>> y : Y_outcomes.entrySet()) {
+//            System.out.println(y.getKey());
+//            System.out.println(y.getValue());
+//        }
 
         // get the names of variables for X and Y
         Set<String> X_names_set = X_outcomes.keySet();
@@ -105,14 +135,16 @@ public class CPTBuilder {
         names.addAll(X_names);
         names.addAll(Y_names);
 
+        System.out.println("\tnames are: " + names);
+
         HashMap<String, List<String>> variables_outcomes = new HashMap<>();
 
-        for(String name : X_names) {
+        for (String name : X_names) {
             List<String> variable_outcomes = getNamesAndOutcomes(X).get(name);
             variables_outcomes.put(name, variable_outcomes);
         }
 
-        for(String name : Y_names) {
+        for (String name : Y_names) {
             List<String> variable_outcomes = getNamesAndOutcomes(Y).get(name);
             variables_outcomes.put(name, variable_outcomes);
         }
@@ -121,42 +153,46 @@ public class CPTBuilder {
         List<List<String>> outcomes = new ArrayList<>();
         outcomes.add(hidden.getOutcomes());
 
-        for(Map.Entry<String, List<String>> vo : variables_outcomes.entrySet()) {
+        for (Map.Entry<String, List<String>> vo : variables_outcomes.entrySet()) {
             outcomes.add(vo.getValue());
+        }
+
+        for(List<String> o : outcomes) {
+            System.out.println("\t\t\tO: " + o);
         }
 
         double[] X_values = new double[X.size()];
         i = 0;
-        for(Map.Entry<String, Double> x : X.entrySet()) {
+        for (Map.Entry<String, Double> x : X.entrySet()) {
             X_values[i++] = x.getValue();
         }
 
         double[] Y_values = new double[Y.size()];
         i = 0;
-        for(Map.Entry<String, Double> y : Y.entrySet()) {
+        for (Map.Entry<String, Double> y : Y.entrySet()) {
             Y_values[i++] = y.getValue();
         }
 
-        double[][] res = UtilFunctions.cartesianTwoDoubleArrays(X_values, Y_values);
-
-        for(i = 0; i < res.length; i++) {
-            for(int j = 0; j < res[i].length; j++) {
-            }
-        }
-
         int X_outcomes_size = 0;
-        for(String name : X_names) {
+        for (String name : X_names) {
             List<String> o = variables_outcomes.get(name);
+            System.out.println("x name: " + name);
             X_outcomes_size += o.size();
         }
+        System.out.println("X_outcomes_size: " + X_outcomes_size);
 
         int Y_outcomes_size = 0;
-        for(String name : X_names) {
+        for (String name : X_names) {
             List<String> o = variables_outcomes.get(name);
+            System.out.println("y name: " + name);
             Y_outcomes_size += o.size();
         }
+        System.out.println("Y_outcomes_size: " + Y_outcomes_size);
+
 
         int H_outcomes_size = hidden.getOutcomes().size();
+        System.out.println("H_outcomes_size: " + H_outcomes_size);
+
 
         System.out.println("X_values: " + Arrays.toString(X_values));
         System.out.println("Y_values: " + Arrays.toString(Y_values));
@@ -174,40 +210,34 @@ public class CPTBuilder {
             m += Y_outcomes_size;
         }
 
-        System.out.println("names are: " + names);
-        System.out.println("outcomes:");
-        for(List<String> outcome : outcomes) {
-            System.out.println(outcome);
-        }
-        System.out.println("values: " + Arrays.toString(values));
-
         // the new factor of X and Y
-        LinkedHashMap<String, Double> factor = CPTBuilder.buildCPTLinkedHashMap(values, outcomes, names);
-        System.out.println("new factor: ");
-        System.out.println(UtilFunctions.hashMapToString(factor));
-        return null;
+        return CPTBuilder.buildCPTLinkedHashMap(values, outcomes, names);
     }
 
+    /**
+     * @param cpt factor
+     * @return hashmap when the keys are the name of the variables that are in the factor and the values are the outcomes of those variables
+     */
     private static HashMap<String, List<String>> getNamesAndOutcomes(LinkedHashMap<String, Double> cpt) {
         HashMap<String, List<String>> outcomes = new HashMap<>();
 
         List<String> names = new ArrayList<>();
-        for(Map.Entry<String, Double> line : cpt.entrySet()) {
+        for (Map.Entry<String, Double> line : cpt.entrySet()) {
             LinkedHashMap<String, String> line_split = UtilFunctions.splitKeysToVariablesAndOutcomes(line.getKey());
-            for(Map.Entry<String, String> inner : line_split.entrySet()) {
+            for (Map.Entry<String, String> inner : line_split.entrySet()) {
                 names.add(inner.getKey());
             }
             break;
         }
 
-        for(String name : names) {
+        for (String name : names) {
             outcomes.put(name, new ArrayList<>());
         }
 
-        for(Map.Entry<String, Double> line : cpt.entrySet()) {
+        for (Map.Entry<String, Double> line : cpt.entrySet()) {
             LinkedHashMap<String, String> line_split = UtilFunctions.splitKeysToVariablesAndOutcomes(line.getKey());
-            for(Map.Entry<String, String> inner : line_split.entrySet()) {
-                if(!outcomes.get(inner.getKey()).contains(inner.getValue())) {
+            for (Map.Entry<String, String> inner : line_split.entrySet()) {
+                if (!outcomes.get(inner.getKey()).contains(inner.getValue())) {
                     outcomes.get(inner.getKey()).add(inner.getValue());
                 }
             }
