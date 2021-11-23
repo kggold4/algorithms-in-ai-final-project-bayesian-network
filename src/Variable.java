@@ -7,7 +7,7 @@ public class Variable {
     private final String name;
     private List<Variable> parents;
     private final List<String> outcomes;
-    private HashMap<String, Double> cpt;
+    private LinkedHashMap<String, Double> cpt;
     private boolean shaded;
     public boolean uninitialized;
 
@@ -22,7 +22,7 @@ public class Variable {
     public Variable(String name, List<String> outcomes, double[] values, Variable[] parents) {
         this.name = name;
         this.outcomes = outcomes;
-        this.cpt = new HashMap<>();
+        this.cpt = new LinkedHashMap<>();
         this.shaded = false;
         this.uninitialized = false;
         initialize_parents(values, parents);
@@ -37,7 +37,7 @@ public class Variable {
     public Variable(String name, List<String> outcomes) {
         this.name = name;
         this.outcomes = outcomes;
-        this.cpt = new HashMap<>();
+        this.cpt = new LinkedHashMap<>();
         this.shaded = false;
         this.uninitialized = false;
     }
@@ -71,7 +71,7 @@ public class Variable {
             }
             all_outcomes.add(this.outcomes);
             all_names.add(this.name);
-            this.cpt = CPTBuilder.BuildCPTHashMap(values, all_outcomes, all_names);
+            this.cpt = CPTBuilder.buildCPTLinkedHashMap(values, all_outcomes, all_names);
 
         }
         this.uninitialized = true;
@@ -112,6 +112,10 @@ public class Variable {
         return this.shaded;
     }
 
+    public LinkedHashMap<String, Double> getCPT() { return this.cpt; }
+
+    public List<String> getOutcomes() { return this.outcomes; }
+
     /**
      * to string method
      *
@@ -122,9 +126,6 @@ public class Variable {
         return "" + this.name;
     }
 
-    public HashMap<String, Double> getCPT() {
-        return this.cpt;
-    }
 
     public static void main(String[] args) {
 
