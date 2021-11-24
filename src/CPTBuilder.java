@@ -80,7 +80,6 @@ public class CPTBuilder {
         // for each pair of factors join them
         for (int i = 1; i < cpt_to_join.size(); i++) {
             factor = joinTwoFactors(factor, cpt_to_join.get(i), hidden);
-            System.out.println("result:\n" + UtilFunctions.hashMapToString(factor));
         }
 
         return factor;
@@ -172,7 +171,7 @@ public class CPTBuilder {
         double[] values = new double[factor_size];
         int values_index = 0;
 
-        for(; values_index < factor_size; values_index++) {
+        for (; values_index < factor_size; values_index++) {
             values[values_index] = 1.0;
         }
 
@@ -210,8 +209,8 @@ public class CPTBuilder {
      * @param cpt factor
      * @return hashmap when the keys are the name of the variables that are in the factor and the values are the outcomes of those variables
      */
-    private static HashMap<String, List<String>> getNamesAndOutcomes(LinkedHashMap<String, Double> cpt) {
-        HashMap<String, List<String>> outcomes = new HashMap<>();
+    public static LinkedHashMap<String, List<String>> getNamesAndOutcomes(LinkedHashMap<String, Double> cpt) {
+        LinkedHashMap<String, List<String>> outcomes = new LinkedHashMap<>();
 
         List<String> names = new ArrayList<>();
         for (Map.Entry<String, Double> line : cpt.entrySet()) {
@@ -242,11 +241,64 @@ public class CPTBuilder {
      * @return string of the list strings seperated by commas
      */
     public static String combineWithCommas(List<String> list) {
-        StringBuilder output = new StringBuilder();
+        StringBuilder result = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
-            output.append(list.get(i));
-            if (i != list.size() - 1) output.append(",");
+            result.append(list.get(i));
+            if (i != list.size() - 1) result.append(",");
         }
-        return output.toString();
+        return result.toString();
+    }
+
+    public static LinkedHashMap<String, Double> eliminate(LinkedHashMap<String, Double> factor, Variable hidden) {
+
+        LinkedHashMap<String, Double> result = new LinkedHashMap<>();
+
+        // build list with all the outcomes of hidden and his name, for example: {"A=T", "A=F"}
+        List<String> outcomes = hidden.getOutcomes();
+        List<String> values = new ArrayList<>();
+        for (String outcome : outcomes) {
+            values.add(hidden.getName() + "=" + outcome);
+        }
+
+        for (Map.Entry<String, Double> line : factor.entrySet()) {
+            for (String value : values) {
+                if (line.getKey().contains(value)) {
+
+                    // build the new key without the value
+                    List<String> split_new_key = new ArrayList<>(List.of(line.getKey().split(",")));
+                    split_new_key.remove(value);
+                    StringBuilder new_key = new StringBuilder();
+                    for (int i = 0; i < split_new_key.size(); i++) {
+                        new_key.append(split_new_key.get(i));
+                        if (i != split_new_key.size() - 1) {
+                            new_key.append(",");
+                        }
+                    }
+
+                    double variable_value = 0;
+                    if(result.containsKey(new_key.toString())) {
+                        variable_value = result.get(new_key.toString());
+                    }
+
+                    for (Map.Entry<String, Double> line_again : factor.entrySet()) {
+
+                        if (line_again.getKey().contains(new_key.toString())) {
+                            variable_value += line_again.getValue();
+                            System.out.println();
+                        }
+                    }
+
+                    result.put(new_key.toString(), variable_value);
+                }
+            }
+        }
+        return result;
+    }
+
+    private static double getSumValues(LinkedHashMap<String, Double> factor, String value) {
+        System.out.println("FACTOR TO GET SUM ON " + value + "\n" + UtilFunctions.hashMapToString(factor));
+        double result = 0.0;
+
+        return result;
     }
 }
