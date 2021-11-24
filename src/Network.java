@@ -336,7 +336,7 @@ public class Network {
                             factors.remove(ctj);
                         }
                         LinkedHashMap<String, Double> new_factor = CPTBuilder.joinFactors(cpt_to_join, h);
-                        System.out.println("FIRST:");
+                        System.out.println("RESULT:");
                         System.out.println(UtilFunctions.hashMapToString(new_factor));
                     }
 
