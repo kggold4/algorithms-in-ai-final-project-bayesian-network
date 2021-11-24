@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class UtilFunctions {
     /**
@@ -36,15 +33,28 @@ public class UtilFunctions {
         return result;
     }
 
+    public static <T> List<T> union(List<T> X, List<T> Y) {
+        Set<T> result = new HashSet<>();
+        result.addAll(X);
+        result.addAll(Y);
+        return new ArrayList<>(result);
+    }
+
+    public static <T> List<T> intersection(List<T> X, List<T> Y) {
+        List<T> result = new ArrayList<>();
+        for (T x : X) if (Y.contains(x)) result.add(x);
+        return result;
+    }
+
     /**
-     * swapping two hashmaps
+     * swapping function
      *
-     * @param X first hashmap
-     * @param Y second hashmap
+     * @param X first element
+     * @param Y second element
      */
-    public static void swap(LinkedHashMap<String, Double> X, LinkedHashMap<String, Double> Y) {
-        LinkedHashMap<String, Double> T = X;
-        X = new LinkedHashMap<String, Double>(Y);
-        Y = T;
+    public static <T> void swap(T X, T Y) {
+        T temp = X;
+        X = Y;
+        Y = temp;
     }
 }
