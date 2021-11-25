@@ -277,11 +277,11 @@ public class Network {
 
                             // checking if the factor contains more the one value
                             // if not - do not add to factors
-                            if(namesAndOutcomes.keySet().size() > 1) {
+//                            if(namesAndOutcomes.keySet().size() > 1) {
 
                                 // add the factor to factors
                                 factors.put(variable.getName(), cpt);
-                            }
+//                            }
                         }
                     }
                 }
@@ -304,7 +304,7 @@ public class Network {
                 if (cpt_line.getKey().contains(q)) {
                     String new_key = cpt_line.getKey();
                     List<String> new_key_split = new ArrayList<>(List.of(new_key.split(",")));
-                    String key_to_change = CPTBuilder.combineWithCommas(new_key_split);
+                    String key_to_change = UtilFunctions.combineWithCommas(new_key_split);
                     new_cpt.put(key_to_change, cpt_line.getValue());
                 }
             }
@@ -341,40 +341,74 @@ public class Network {
                 }
 
                 if (!cpt_to_join.isEmpty()) {
-                    if (cpt_to_join.size() > 1) {
 
-                        System.out.println("factor to join with " + h.getName());
-                        for (LinkedHashMap<String, Double> c : cpt_to_join) {
-                            System.out.println(UtilFunctions.hashMapToString(c));
-                        }
-
-                        // join cpt_to_join (all the factors that mentioning h) to one factor
-                        LinkedHashMap<String, Double> new_factor = CPTBuilder.joinFactors(cpt_to_join, h);
-
-                        System.out.println("\tFactor BEFORE Eliminate on " + h.getName() + "\n");
-                        System.out.println(UtilFunctions.hashMapToString(new_factor));
-
-                        // eliminate factor
-                        new_factor = CPTBuilder.eliminate(new_factor, h);
-
-                        System.out.println("\tFactor AFTER Eliminate on " + h.getName() + "\n");
-                        System.out.println(UtilFunctions.hashMapToString(new_factor));
-
-                        // add the new factor to factors
-                        factors.put(last_name, new_factor);
-
-
+                    System.out.println("factor to join with " + h.getName());
+                    for (LinkedHashMap<String, Double> c : cpt_to_join) {
+                        System.out.println(UtilFunctions.hashMapToString(c));
                     }
+
+                    // join cpt_to_join (all the factors that mentioning h) to one factor
+                    LinkedHashMap<String, Double> new_factor = CPTBuilder.joinFactors(cpt_to_join, h);
+
+                    System.out.println("\tFactor BEFORE Eliminate on " + h.getName() + "\n");
+                    System.out.println(UtilFunctions.hashMapToString(new_factor));
+
+                    // eliminate factor
+                    new_factor = CPTBuilder.eliminate(new_factor, h);
+
+                    System.out.println("\tFactor AFTER Eliminate on " + h.getName() + "\n");
+                    System.out.println(UtilFunctions.hashMapToString(new_factor));
+
+//                        System.out.println("\tAFTER FIXING DUPLICATE:");
+//                        System.out.println(UtilFunctions.hashMapToString(UtilFunctions.fixingDuplicatesValuesInKeys(new_factor)));
+
+                    // add the new factor to factors
+                    factors.put(last_name, new_factor);
+
+
                 }
+
             }
         }
 
-        System.out.println("*************** END ***************");
+        // removing the factors with size of one or less
+        LinkedHashMap<String, Integer> sizes = new LinkedHashMap<>();
+        for (Map.Entry<String, LinkedHashMap<String, Double>> factor : factors.entrySet()) {
+            sizes.put(factor.getKey(), factor.getValue().size());
+        }
+
+        for(Map.Entry<String, Integer> factor : sizes.entrySet()) {
+            if(factor.getValue() <= 1) {
+                factors.remove(factor.getKey());
+            }
+        }
+
+        // eliminate again if still the factor contains other different outcomes of
+//        for (Map.Entry<String, LinkedHashMap<String, Double>> factor : factors.entrySet()) {
+//            sizes.put(factor.getKey(), factor.getValue().size());
+//        }
+//
+//        LinkedHashMap<String, List<String>> new_factor_outcomes = CPTBuilder.getNamesAndOutcomes(new_factor);
+//        for()
+
+        System.out.println("-------------------------------BEFORE END PRINT FACTORS----------------------------------");
         for (Map.Entry<String, LinkedHashMap<String, Double>> e : factors.entrySet()) {
-            System.out.println("new factor for " + e.getKey() + ":");
+            System.out.println("factor for " + e.getKey() + ", is:");
             System.out.println(UtilFunctions.hashMapToString(e.getValue()));
         }
-        System.out.println("***********************************");
+        System.out.println("-----------------------------------------------------------------------------------------");
+//
+//        LinkedHashMap<String ,Double> result_factor = new LinkedHashMap<>();
+//
+//        System.out.println("*************** END ***************");
+//        for (Map.Entry<String, LinkedHashMap<String, Double>> e : factors.entrySet()) {
+//            result_factor = e.getValue();
+//            break;
+//        }
+//
+//        System.out.println(UtilFunctions.hashMapToString(UtilFunctions.fixingDuplicatesValuesInKeys(result_factor)));
+//
+//        System.out.println("***********************************");
 
         return value;
     }
@@ -404,7 +438,7 @@ public class Network {
                     String new_key = key.getKey();
                     List<String> new_key_split = new ArrayList<>(List.of(new_key.split(",")));
                     new_key_split.remove(full_evidence.toString());
-                    String key_to_change = CPTBuilder.combineWithCommas(new_key_split);
+                    String key_to_change = UtilFunctions.combineWithCommas(new_key_split);
                     factor.put(key_to_change, key.getValue());
                 }
             }

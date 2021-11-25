@@ -47,14 +47,47 @@ public class UtilFunctions {
     }
 
     /**
-     * swapping function
-     *
-     * @param X first element
-     * @param Y second element
+     * @param list of strings
+     * @return string of the list strings seperated by commas
      */
-    public static <T> void swap(T X, T Y) {
-        T temp = X;
-        X = Y;
-        Y = temp;
+    public static String combineWithCommas(List<String> list) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            result.append(list.get(i));
+            if (i != list.size() - 1) result.append(",");
+        }
+        return result.toString();
+    }
+
+    public static List<String> separateByCommas(String string) {
+        return new ArrayList<>(Arrays.asList(string.split(",")));
+    }
+
+    public static LinkedHashMap<String, Double> fixingDuplicatesValuesInKeys(LinkedHashMap<String, Double> factor) {
+
+        LinkedHashMap<String, Double> result = new LinkedHashMap<>();
+        LinkedHashMap<String, List<String>> outcomes = CPTBuilder.getNamesAndOutcomes(factor);
+        List<String> unWelcomeValues = new ArrayList<>();
+
+        for(Map.Entry<String, List<String>> entry : outcomes.entrySet()) {
+            if(entry.getValue().size() == 1) {
+                String value = entry.getKey() + "=" + entry.getValue().get(0);
+                unWelcomeValues.add(value);
+                System.out.println("\t\t\t\t\t\tvalue is: " + value);
+            }
+        }
+
+        for(Map.Entry<String, Double> entry : factor.entrySet()) {
+            StringBuilder new_key = new StringBuilder();
+            List<String> new_key_split = separateByCommas(entry.getKey());
+            for(String key : new_key_split) {
+                if(!unWelcomeValues.contains(key)) {
+                    new_key.append(key);
+                }
+            }
+            result.put(new_key.toString(), entry.getValue());
+        }
+
+        return result;
     }
 }

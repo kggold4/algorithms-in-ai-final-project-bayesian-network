@@ -82,6 +82,11 @@ public class CPTBuilder {
             factor = joinTwoFactors(factor, cpt_to_join.get(i), hidden);
         }
 
+        System.out.println("##################################");
+        System.out.println("RESULT:");
+        System.out.println(UtilFunctions.hashMapToString(factor));
+        System.out.println("##################################");
+
         return factor;
     }
 
@@ -146,21 +151,17 @@ public class CPTBuilder {
             outcomes.add(vo.getValue());
         }
 
-        for (List<String> o : outcomes) {
-        }
-
-        double[] X_values = new double[X.size()];
-        i = 0;
-        for (Map.Entry<String, Double> x : X.entrySet()) {
-            X_values[i++] = x.getValue();
-        }
-
-        double[] Y_values = new double[Y.size()];
-        i = 0;
-        for (Map.Entry<String, Double> y : Y.entrySet()) {
-            Y_values[i++] = y.getValue();
-        }
-
+//        double[] X_values = new double[X.size()];
+//        i = 0;
+//        for (Map.Entry<String, Double> x : X.entrySet()) {
+//            X_values[i++] = x.getValue();
+//        }
+//
+//        double[] Y_values = new double[Y.size()];
+//        i = 0;
+//        for (Map.Entry<String, Double> y : Y.entrySet()) {
+//            Y_values[i++] = y.getValue();
+//        }
 
         int factor_size = 1;
         for (String name : X_Y_names_union) {
@@ -175,34 +176,44 @@ public class CPTBuilder {
             values[values_index] = 1.0;
         }
 
+        LinkedHashMap<String, Double> V = new LinkedHashMap<>();
+
         values_index = 0;
         for (Map.Entry<String, Double> y : Y.entrySet()) {
-            LinkedHashMap<String, String> t = UtilFunctions.splitKeysToVariablesAndOutcomes(y.getKey());
-            List<String> s = new ArrayList<>();
+            LinkedHashMap<String, String> values_of_line = UtilFunctions.splitKeysToVariablesAndOutcomes(y.getKey());
+
+            List<String> values_of_intersection_variables = new ArrayList<>();
             for (String name : X_Y_names_intersection) {
-                s.add(name + "=" + t.get(name));
+                values_of_intersection_variables.add(name + "=" + values_of_line.get(name));
             }
-            boolean b = true;
             for (Map.Entry<String, Double> x : X.entrySet()) {
-                for (String name : s) {
-                    if (!x.getKey().contains(name)) {
-                        b = false;
+                for (String name : values_of_intersection_variables) { // name = ["A=T", "A=F"]
+                    if (x.getKey().contains(name)) {
+
+                        double u = y.getValue();
+                        double v = x.getValue();
+                        double r = u * v;
+
+                        List<String> new_key_split = UtilFunctions.union(List.of(y.getKey().split(",")), List.of(x.getKey().split(",")));
+                        Collections.sort(new_key_split);
+                        String new_key = UtilFunctions.combineWithCommas(new_key_split);
+                        V.put(new_key, r);
+
+//                        values[values_index] *= r;
+//                        values_index++;
                     }
                 }
-
-                // found the wanted row
-                if (b) {
-                    double u = y.getValue();
-                    double v = x.getValue();
-                    double r = u * v;
-                    values[values_index] *= r;
-                    values_index++;
-                }
-                b = true;
             }
         }
 
-        return CPTBuilder.buildCPTLinkedHashMap(values, outcomes, names);
+        System.out.println("999999999999999999999999999999999999999");
+        System.out.println(UtilFunctions.hashMapToString(V));
+        System.out.println("999999999999999999999999999999999999999");
+
+        return V;
+
+//        return CPTBuilder.buildCPTLinkedHashMap(values, outcomes, names);
+
     }
 
     /**
@@ -236,18 +247,7 @@ public class CPTBuilder {
         return outcomes;
     }
 
-    /**
-     * @param list of strings
-     * @return string of the list strings seperated by commas
-     */
-    public static String combineWithCommas(List<String> list) {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < list.size(); i++) {
-            result.append(list.get(i));
-            if (i != list.size() - 1) result.append(",");
-        }
-        return result.toString();
-    }
+
 
     public static LinkedHashMap<String, Double> eliminate(LinkedHashMap<String, Double> factor, Variable hidden) {
 
@@ -260,38 +260,49 @@ public class CPTBuilder {
             values.add(hidden.getName() + "=" + outcome);
         }
 
-        for (Map.Entry<String, Double> line : factor.entrySet()) {
+        for (Map.Entry<String, Double> y : factor.entrySet()) {
             for (String value : values) {
-                if (line.getKey().contains(value)) {
+                if (y.getKey().contains(value)) {
 
                     // build the new key without the value
-                    List<String> split_new_key = new ArrayList<>(List.of(line.getKey().split(",")));
+                    List<String> split_new_key = new ArrayList<>(List.of(y.getKey().split(",")));
                     split_new_key.remove(value);
-                    StringBuilder new_key = new StringBuilder();
-                    for (int i = 0; i < split_new_key.size(); i++) {
-                        new_key.append(split_new_key.get(i));
-                        if (i != split_new_key.size() - 1) {
-                            new_key.append(",");
+                    String new_key = UtilFunctions.combineWithCommas(split_new_key);
+
+//                    double variable_value = 0;
+//                    if(result.containsKey(new_key)) {
+//                        variable_value = result.get(new_key.toString());
+//                    }
+
+                    for (Map.Entry<String, Double> x : factor.entrySet()) {
+
+                        boolean b = true;
+                        List<String> new_key_values = UtilFunctions.separateByCommas(new_key);
+                        for(String new_key_value : new_key_values) {
+                            if(!x.getKey().contains(new_key_value)) {
+                                b = false;
+                            }
+                        }
+
+                        if(x.getKey().equals(y.getKey())) {
+                            b = false;
+                        }
+
+                        if(b) {
+                            double u = y.getValue();
+                            double v = x.getValue();
+                            double r = u + v;
+                            System.out.println("add " + u + ", and " + v + ", to " + r);
+
+                            if(!result.containsKey(new_key)) {
+                                result.put(new_key, r);
+                            }
                         }
                     }
-
-                    double variable_value = 0;
-                    if(result.containsKey(new_key.toString())) {
-                        variable_value = result.get(new_key.toString());
-                    }
-
-                    for (Map.Entry<String, Double> line_again : factor.entrySet()) {
-
-                        if (line_again.getKey().contains(new_key.toString())) {
-                            variable_value += line_again.getValue();
-                            System.out.println();
-                        }
-                    }
-
-                    result.put(new_key.toString(), variable_value);
                 }
             }
         }
+
         return result;
     }
 
