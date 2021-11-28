@@ -146,10 +146,16 @@ public class Variable {
 //        Variable Y = new Variable("Y", new String[]{"v1", "v2", "v3"}, new double[]{0.02, 0.15, 0.03, 0.15, 0.15, 0.5}, new Variable[]{X});
 
         // three variables (E and B are parents of A)
-        Variable E = new Variable("E", List.of(new String[]{"T", "F"}), new double[]{0.002, 0.998}, null);
-        Variable B = new Variable("B", List.of(new String[]{"T", "F"}), new double[]{0.001, 0.999}, null);
-        Variable A = new Variable("A", List.of(new String[]{"x", "y", "z"}), new double[]{0.95, 0.05, 0.29, 0.71, 0.94, 0.06, 0.001, 0.999}, new Variable[]{E, B});
+        Variable E = new Variable("ELEM", List.of(new String[]{"True", "False"}), new double[]{0.002, 0.998}, null);
+        Variable B = new Variable("BANANA", List.of(new String[]{"True", "False"}), new double[]{0.001, 0.999}, null);
+        Variable A = new Variable("ANANAS", List.of(new String[]{"VECTOR1", "VECTOR2", "VECTOR3"}), new double[]{0.95, 0.05, 0.29, 0.71, 0.94, 0.06, 0.001, 0.999}, new Variable[]{E, B});
 
+        List<Variable> variables = new ArrayList<>();
+        variables.add(E);
+        variables.add(B);
+        variables.add(A);
+        Network network = new Network(variables);
+        System.out.println(network);
 
         // example from lecture
 //        Variable Weather = new Variable("Weather", new String[]{"T", "F"}, new double[]{0.4, 0.6}, null);

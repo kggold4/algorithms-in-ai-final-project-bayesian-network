@@ -7,8 +7,8 @@ import java.util.List;
 
 public class Ex1 {
 
-    private static final String input_file_name = "input.txt";
-    private static final String output_file_name = "output2.txt";
+    private static final String input_file_name = "input3.txt";
+//    private static final String output_file_name = "output2.txt";
     private static final String split_mark = "split_text";
 
     /**
@@ -89,8 +89,12 @@ public class Ex1 {
                 for(int j = 1; j < elimination_variables.size(); j++) {
                     evidence.add(elimination_variables.get(j));
                 }
-                double priority = net.variable_elimination(hypothesis, evidence, hidden);
-                output.append(UtilFunctions.roundFiveDecimalPlaces(priority));
+                List<Double> ve_result = net.variable_elimination(hypothesis, evidence, hidden);
+                output.append(UtilFunctions.roundFiveDecimalPlaces(ve_result.get(0)));
+                output.append(",");
+                output.append((long)Math.floor(ve_result.get(1)));
+                output.append(",");
+                output.append((long)Math.floor(ve_result.get(2)));
 
             }
 

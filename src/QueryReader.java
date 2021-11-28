@@ -53,12 +53,16 @@ public class QueryReader {
         output.add(half[0]);
 
         StringBuilder evidence = new StringBuilder();
-        String[] evidences = half[1].split(",");
-        for(int i = 0; i < evidences.length; i++) {
-            evidence.append(evidences[i]);
-            if(i != evidences.length -1) evidence.append(",");
+        if(half.length > 1) {
+            String[] evidences = half[1].split(",");
+            for(int i = 0; i < evidences.length; i++) {
+                evidence.append(evidences[i]);
+                if(i != evidences.length -1) evidence.append(",");
+            }
         }
-        output.add(evidence.toString());
+        if(evidence.toString().length() > 0) {
+            output.add(evidence.toString());
+        }
         return output;
     }
 

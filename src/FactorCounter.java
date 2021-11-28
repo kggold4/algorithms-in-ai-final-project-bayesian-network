@@ -13,7 +13,7 @@ public class FactorCounter {
     }
 
     public void mulAdd(int mul) {
-        this.sum_count += mul;
+        this.mul_count += mul;
     }
 
     public int getSumCount() {
