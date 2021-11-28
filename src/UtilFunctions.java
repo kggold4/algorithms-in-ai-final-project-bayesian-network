@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class UtilFunctions {
@@ -34,9 +36,8 @@ public class UtilFunctions {
     }
 
     /**
-     *
-     * @param X list of elements
-     * @param Y list of elements
+     * @param X   list of elements
+     * @param Y   list of elements
      * @param <T> some value that X and Y are fill with
      * @return union of X and Y lists
      */
@@ -48,17 +49,16 @@ public class UtilFunctions {
     }
 
     /**
-     *
-     * @param X list of elements
-     * @param Y list of elements
+     * @param X   list of elements
+     * @param Y   list of elements
      * @param <T> some value that X and Y are fill with
      * @return intersection of X and Y lists
      */
     public static <T> List<T> intersection(List<T> X, List<T> Y) {
         List<T> result = new ArrayList<>();
-        if(X.isEmpty() && Y.isEmpty()) return result;
-        else if(X.isEmpty()) return Y;
-        else if(Y.isEmpty()) return X;
+        if (X.isEmpty() && Y.isEmpty()) return result;
+        else if (X.isEmpty()) return Y;
+        else if (Y.isEmpty()) return X;
         else for (T x : X) if (Y.contains(x)) result.add(x);
         return result;
     }
@@ -105,16 +105,20 @@ public class UtilFunctions {
         // result factor
         LinkedHashMap<String, Double> result = new LinkedHashMap<>();
 
+        if(factor.size() == 1 && CPTBuilder.getNames(factor).size() == 1) {
+            return factor;
+        }
+
         // all outcomes linked hash map in factor
         LinkedHashMap<String, List<String>> outcomes = CPTBuilder.getNamesAndOutcomes(factor);
 
-        if(outcomes.size() == 0) {
+        if (outcomes.size() == 0) {
             return result;
         }
 
-        if(outcomes.size() == 1) {
-            for(Map.Entry<String, List<String>> entry : outcomes.entrySet()) {
-                if(entry.getValue().size() == 1) {
+        if (outcomes.size() == 1) {
+            for (Map.Entry<String, List<String>> entry : outcomes.entrySet()) {
+                if (entry.getValue().size() == 1) {
                     return result;
                 }
             }
@@ -146,5 +150,15 @@ public class UtilFunctions {
         }
 
         return result;
+    }
+
+    /**
+     * @param d a double value
+     * @return the double value only with 6 decimal places after the decimal point
+     */
+    public static double roundFiveDecimalPlaces(double d) {
+        BigDecimal bigDecimal = new BigDecimal(Double.toString(d));
+        bigDecimal = bigDecimal.setScale(5, RoundingMode.HALF_UP);
+        return bigDecimal.doubleValue();
     }
 }

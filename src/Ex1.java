@@ -90,6 +90,7 @@ public class Ex1 {
                     evidence.add(elimination_variables.get(j));
                 }
                 double priority = net.variable_elimination(hypothesis, evidence, hidden);
+                output.append(UtilFunctions.roundFiveDecimalPlaces(priority));
 
             }
 
