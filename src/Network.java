@@ -317,7 +317,10 @@ public class Network {
                 if (cpt_line.getKey().contains(q)) {
                     String new_key = cpt_line.getKey();
                     System.out.println("new_key: " + new_key);
-                    List<String> new_key_split = new ArrayList<>(List.of(new_key.split(",")));
+                    List<String> new_key_split = new ArrayList<>();
+                    for(String s : new_key.split(",")) {
+                        new_key_split.add(s);
+                    }
                     String key_to_change = UtilFunctions.combineWithCommas(new_key_split);
                     new_cpt.put(key_to_change, cpt_line.getValue());
                 }
@@ -513,7 +516,10 @@ public class Network {
             for (Map.Entry<String, Double> key : hidden_factor.entrySet()) {
                 if (key.getKey().contains(full_evidence.toString())) {
                     String new_key = key.getKey();
-                    List<String> new_key_split = new ArrayList<>(List.of(new_key.split(",")));
+                    List<String> new_key_split = new ArrayList<>();
+                    for(String s : new_key.split(",")) {
+                        new_key_split.add(s);
+                    }
                     new_key_split.remove(full_evidence.toString());
                     String key_to_change = UtilFunctions.combineWithCommas(new_key_split);
                     factor.put(key_to_change, key.getValue());

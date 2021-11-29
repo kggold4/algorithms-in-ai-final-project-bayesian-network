@@ -1,14 +1,16 @@
 import org.w3c.dom.Document;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Ex1 {
 
-    private static final String input_file_name = "input3.txt";
-//    private static final String output_file_name = "output2.txt";
+    private static final String input_file_name = "input.txt";
+    private static final String output_file_name = "output.txt";
     private static final String split_mark = "split_text";
 
     /**
@@ -55,7 +57,11 @@ public class Ex1 {
         // check queries
         System.out.println(net);
 
-        List<String> split_queries = List.of(queries.toString().split(split_mark));
+        List<String> split_queries = new ArrayList<>();
+        for(String s : queries.toString().split(split_mark)) {
+            split_queries.add(s);
+        }
+
         System.out.println("queries: ");
         int i = 1;
         for (String q : split_queries) {
@@ -97,14 +103,19 @@ public class Ex1 {
                 output.append((long)Math.floor(ve_result.get(2)));
 
             }
-
-            output.append("\n");
+            if(i != split_queries.size()) output.append("\n");
 
             i++;
         }
 
         // need to save output to output txt file...
         System.out.println("output:\n" + output);
+
+        try (PrintWriter out = new PrintWriter(output_file_name)) {
+            out.println(output);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
     }
 }

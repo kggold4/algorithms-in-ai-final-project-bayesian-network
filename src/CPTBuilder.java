@@ -1,9 +1,5 @@
 
 import java.util.*;
-import java.util.function.BinaryOperator;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * this class contains a several functions the can build a CPT tables for the bayesian network variables
@@ -19,81 +15,56 @@ public class CPTBuilder {
      * @return - .
      */
     public static LinkedHashMap<String, Double> buildCPTLinkedHashMap(double[] values, List<List<String>> outcomes, List<String> names) {
+        LinkedHashMap<String, Double> result = new LinkedHashMap<>();
 
-//        System.out.println("values: " + Arrays.toString(values));
-//        for(List<String> o : outcomes) {
-//            System.out.println("outcome: " + o);
-//        }
-//        System.out.println("names: " + names);
-//
-//        String[] outputs = new String[values.length];
-//        for(int i = 0; i < outputs.length; i++) {
-//            outputs[i] = "";
-//        }
-//
-//        for(int i = 0; i < names.size(); i++) {
-//            int index = 0;
-//            String name = names.get(i);
-//            for(int j = 0; j < outcomes.get(i).size(); j++) {
-//                List<String> outcome_values = outcomes.get(j);
-//                for(int k = 0; k < outcome_values.size(); k++) {
-//                    String outcome = outcome_values.get(k);
-//                    String value = name + "=" + outcome;
-//                    outputs[index++] = outputs[index] + value + ",";
-//                }
-//            }
-//        }
-//
-//        for(int i = 0; i < outputs.length; i++) {
-//            System.out.println("output: " + outputs[i]);
-//        }
-
-        int n = outcomes.size();
-        var supp = new Supplier[n];
-        for (int i = 0; i < n; i++) {
-            int k = i;
-            supp[i] = () -> Stream.of(outcomes.get(k).toArray());
+        System.out.println("values: " + Arrays.toString(values));
+        for (List<String> o : outcomes) {
+            System.out.println("outcome: " + o);
         }
-        Stream<String> result = cartesian_outcomes((a, b) -> a + "," + b, supp);
-        List<String> cartesian_result = result.collect(Collectors.toList());
-        LinkedHashMap<String, Double> cpt = new LinkedHashMap<>();
+        System.out.println("names: " + names);
+
+
+        String[] outputs = new String[values.length];
         for (int i = 0; i < values.length; i++) {
-            cpt.put(fixCPTLinkedHashMapWithParentsNames(cartesian_result.get(i), names), values[i]);
+            outputs[i] = "";
         }
-        return cpt;
-    }
 
-    private static String fixCPTLinkedHashMapWithParentsNames(String line, List<String> names) {
-
-        String[] split_line = line.split(",");
-        StringBuilder result = new StringBuilder();
-        int i = 0;
-        for (String name : names) {
-            result.append(name).append('=');
-            result.append(split_line[i]);
-            if (i < split_line.length - 1) {
-                result.append(',');
+        int exp = values.length;
+        for (int i = 0; i < outcomes.size(); i++) {
+            List<String> o = outcomes.get(i);
+            exp = exp / o.size();
+            int k = 0, sum = 0;
+            for (int j = 0; j < values.length; j++) {
+                sum++;
+                outputs[j] += o.get(k);
+                if(i != outcomes.size() - 1) outputs[j] += ",";
+                if (sum >= exp) {
+                    k++;
+                    sum = 0;
+                    if (k >= o.size()) {
+                        k = 0;
+                    }
+                }
             }
-            i++;
         }
-        return result.toString();
-    }
 
-    /**
-     * calculate cartesian of several given outcomes using java streams
-     *
-     * @param aggregator stream operator
-     * @param in         stream values
-     * @return stream with cartesian outcomes of the cpt
-     */
-    @SafeVarargs
-    private static Stream<String> cartesian_outcomes(BinaryOperator<String> aggregator,
-                                                     Supplier<Stream<java.lang.String>>... in) {
-        return Arrays.stream(in)
-                .reduce((v1, v2) -> () -> v1.get()
-                        .flatMap(u1 -> v2.get()
-                                .map(u2 -> aggregator.apply(u1, u2))))
-                .orElse(Stream::empty).get();
+        List<String> keys = new ArrayList<>();
+        for (String output : outputs) {
+            String[] split_key = output.split(",");
+            StringBuilder key_line = new StringBuilder();
+            for (int j = 0; j < split_key.length; j++) {
+                String key = names.get(j) + "=" + split_key[j];
+                key_line.append(key);
+                if (j != split_key.length - 1) key_line.append(",");
+            }
+            keys.add(key_line.toString());
+        }
+
+        for(int i = 0; i < values.length; i++) {
+            result.put(keys.get(i), values[i]);
+        }
+
+        return result;
     }
 
     /**
@@ -130,8 +101,6 @@ public class CPTBuilder {
 
         return joinFactors(new_cpt_to_join, factor, factorCounter);
     }
-
-    private static long count = 0;
 
     /**
      * join two factors function
@@ -173,10 +142,9 @@ public class CPTBuilder {
                 values_of_intersection_variables.add(name + "=" + values_of_line.get(name));
             }
             for (Map.Entry<String, Double> x : X.entrySet()) {
-//                System.out.println("values_of_intersection_variables: " + values_of_intersection_variables);
                 boolean b = true;
 
-                for (String name : values_of_intersection_variables) { // name = ["A=T", "A=F"]
+                for (String name : values_of_intersection_variables) {
                     if (!x.getKey().contains(name)) {
                         b = false;
                         break;
@@ -188,10 +156,21 @@ public class CPTBuilder {
                     double v = x.getValue();
                     double r = u * v;
                     factorCounter.mulAdd(1);
-                    System.out.println(count + ") MUL ADD!!!");
                     System.out.println("u: " + u + ", v: " + v + ", r: " + r);
 
-                    List<String> new_key_split = UtilFunctions.union(List.of(y.getKey().split(",")), List.of(x.getKey().split(",")));
+                    String[] Y_split = y.getKey().split(",");
+                    List<String> Y_split_list = new ArrayList<>();
+                    for(int i = 0; i < Y_split.length; i++) {
+                        Y_split_list.add(Y_split[i]);
+                    }
+
+                    String[] X_split = x.getKey().split(",");
+                    List<String> X_split_list = new ArrayList<>();
+                    for(int i = 0; i < X_split.length; i++) {
+                        X_split_list.add(X_split[i]);
+                    }
+
+                    List<String> new_key_split = UtilFunctions.union(Y_split_list, X_split_list);
                     Collections.sort(new_key_split);
                     String new_key = UtilFunctions.combineWithCommas(new_key_split);
                     result.put(new_key, r);
@@ -203,7 +182,6 @@ public class CPTBuilder {
         System.out.println(UtilFunctions.hashMapToString(result));
         System.out.println("999999999999999999999999999999999999999");
 
-        count++;
         return result;
     }
 
@@ -212,9 +190,6 @@ public class CPTBuilder {
      * @return hashmap when the keys are the name of the variables that are in the factor and the values are the outcomes of those variables
      */
     public static LinkedHashMap<String, List<String>> getNamesAndOutcomes(LinkedHashMap<String, Double> cpt) {
-
-//        System.out.println("getNamesAndOutcomes cpt:");
-//        System.out.println(UtilFunctions.hashMapToString(cpt));
 
         LinkedHashMap<String, List<String>> outcomes = new LinkedHashMap<>();
 
@@ -280,7 +255,10 @@ public class CPTBuilder {
                 if (y.getKey().contains(value)) {
 
                     // build the new key without the value
-                    List<String> split_new_key = new ArrayList<>(List.of(y.getKey().split(",")));
+                    List<String> split_new_key = new ArrayList<>();
+                    for(String s : y.getKey().split(",")) {
+                        split_new_key.add(s);
+                    }
                     split_new_key.remove(value);
                     String new_key = UtilFunctions.combineWithCommas(split_new_key);
 
@@ -303,9 +281,6 @@ public class CPTBuilder {
                             double u = y.getValue();
                             double v = x.getValue();
                             double r = u + v;
-                            System.out.println("U is: " + u);
-                            System.out.println("V is: " + v);
-                            System.out.println("R is: " + r);
 
                             if (!result.containsKey(new_key)) {
                                 factorCounter.sumAdd(1);
@@ -380,25 +355,23 @@ public class CPTBuilder {
      */
     public static List<LinkedHashMap<String, Double>> sortFactors(List<LinkedHashMap<String, Double>> factors) {
 
-        LinkedHashMap<String, Double>[] sorted_factors = new LinkedHashMap[factors.size()];
-        for (int i = 0; i < sorted_factors.length; i++) {
-            sorted_factors[i] = factors.get(i);
-        }
+        //        LinkedHashMap<String, Double>[] sorted_factors = new LinkedHashMap[factors.size()];
+        List<LinkedHashMap<String, Double>> sorted_factors = new ArrayList<>(factors);
 
         // using bubble sort algorithm
-        for (int i = 0; i < sorted_factors.length; i++) {
-            for (int j = 0; j < sorted_factors.length - 1; j++) {
-                if (CPTCompare(sorted_factors[j], sorted_factors[j + 1])) {
+        for (int i = 0; i < sorted_factors.size(); i++) {
+            for (int j = 0; j < sorted_factors.size() - 1; j++) {
+                if (CPTCompare(sorted_factors.get(i), sorted_factors.get(j + 1))) {
 
                     // swap factors
-                    LinkedHashMap<String, Double> temp = sorted_factors[j];
-                    sorted_factors[j] = sorted_factors[j + 1];
-                    sorted_factors[j + 1] = temp;
+                    LinkedHashMap<String, Double> temp = sorted_factors.get(j);
+                    sorted_factors.set(j , sorted_factors.get(j + 1));
+                    sorted_factors.set(j + 1, temp);
 
                 }
             }
         }
-        return List.of(sorted_factors);
+        return sorted_factors;
     }
 
     /**
