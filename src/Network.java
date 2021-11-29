@@ -318,9 +318,7 @@ public class Network {
                     String new_key = cpt_line.getKey();
                     System.out.println("new_key: " + new_key);
                     List<String> new_key_split = new ArrayList<>();
-                    for(String s : new_key.split(",")) {
-                        new_key_split.add(s);
-                    }
+                    Collections.addAll(new_key_split, new_key.split(","));
                     String key_to_change = UtilFunctions.combineWithCommas(new_key_split);
                     new_cpt.put(key_to_change, cpt_line.getValue());
                 }
@@ -332,6 +330,10 @@ public class Network {
 
         // adding the hypothesis cpt to the factors
         factors.put(hypothesis.getName(), hypothesis.getCPT());
+
+//        for(Map.Entry<String, LinkedHashMap<String, Double>> f : factors.entrySet()) {
+//
+//        }
 
         hypothesis_value = hypothesis.getName() + "=" + hypothesis_value;
 
@@ -506,8 +508,14 @@ public class Network {
      */
     private LinkedHashMap<String, Double> updateLocalCpt(List<Variable> evidence, List<String> values, Variable hidden) {
 
+        System.out.println();
+
         LinkedHashMap<String, Double> hidden_factor = hidden.getCPT();
         LinkedHashMap<String, Double> factor = new LinkedHashMap<>();
+
+        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+        System.out.println("UPDATE FROM:");
+        System.out.println(UtilFunctions.hashMapToString(hidden_factor));
 
         for (int i = 0; i < evidence.size(); i++) {
             StringBuilder full_evidence = new StringBuilder();
@@ -517,15 +525,17 @@ public class Network {
                 if (key.getKey().contains(full_evidence.toString())) {
                     String new_key = key.getKey();
                     List<String> new_key_split = new ArrayList<>();
-                    for(String s : new_key.split(",")) {
-                        new_key_split.add(s);
-                    }
+                    Collections.addAll(new_key_split, new_key.split(","));
                     new_key_split.remove(full_evidence.toString());
                     String key_to_change = UtilFunctions.combineWithCommas(new_key_split);
                     factor.put(key_to_change, key.getValue());
                 }
             }
         }
+
+        System.out.println("UPDATE to:");
+        System.out.println(UtilFunctions.hashMapToString(factor));
+        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
 
         return factor;
     }

@@ -33,15 +33,10 @@ public class Variable {
      */
     public void initialize_parents(double[] values, Variable[] parents) {
 
-        List<Variable> parents_list = new ArrayList<>();
-        for(int i = 0; i < parents.length; i++) {
-            parents_list.add(parents[i]);
-        }
-
-        if (parents != null) this.parents = parents_list;
+        this.parents = new ArrayList<>(Arrays.asList(parents));
 
         // do not have parents
-        if (parents == null || this.parents.size() == 0) {
+        if (this.parents.size() == 0) {
 
             for (int i = 0; i < this.outcomes.size(); i++) {
                 this.cpt.put(this.name + '=' + this.outcomes.get(i), values[i]);

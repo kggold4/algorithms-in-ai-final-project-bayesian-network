@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Ex1 {
@@ -57,10 +58,7 @@ public class Ex1 {
         // check queries
         System.out.println(net);
 
-        List<String> split_queries = new ArrayList<>();
-        for(String s : queries.toString().split(split_mark)) {
-            split_queries.add(s);
-        }
+        List<String> split_queries = new ArrayList<>(Arrays.asList(queries.toString().split(split_mark)));
 
         System.out.println("queries: ");
         int i = 1;

@@ -118,6 +118,8 @@ public class CPTBuilder {
         System.out.println(UtilFunctions.hashMapToString(Y));
         System.out.println("////////////////////////////////////////////");
 
+        factorCounter.mulAdd(Math.max(X.size(), Y.size()));
+
         // get the outcome hashmaps for X and Y
         HashMap<String, List<String>> X_outcomes = getNamesAndOutcomes(X);
         HashMap<String, List<String>> Y_outcomes = getNamesAndOutcomes(Y);
@@ -155,22 +157,16 @@ public class CPTBuilder {
                     double u = y.getValue();
                     double v = x.getValue();
                     double r = u * v;
-                    factorCounter.mulAdd(1);
-                    System.out.println("u: " + u + ", v: " + v + ", r: " + r);
 
                     String[] Y_split = y.getKey().split(",");
                     List<String> Y_split_list = new ArrayList<>();
-                    for(int i = 0; i < Y_split.length; i++) {
-                        Y_split_list.add(Y_split[i]);
-                    }
+                    Collections.addAll(Y_split_list, Y_split);
 
                     String[] X_split = x.getKey().split(",");
                     List<String> X_split_list = new ArrayList<>();
-                    for(int i = 0; i < X_split.length; i++) {
-                        X_split_list.add(X_split[i]);
-                    }
+                    Collections.addAll(X_split_list, X_split);
 
-                    List<String> new_key_split = UtilFunctions.union(Y_split_list, X_split_list);
+                    List<String> new_key_split = UtilFunctions.union(X_split_list, Y_split_list);
                     Collections.sort(new_key_split);
                     String new_key = UtilFunctions.combineWithCommas(new_key_split);
                     result.put(new_key, r);
@@ -255,10 +251,7 @@ public class CPTBuilder {
                 if (y.getKey().contains(value)) {
 
                     // build the new key without the value
-                    List<String> split_new_key = new ArrayList<>();
-                    for(String s : y.getKey().split(",")) {
-                        split_new_key.add(s);
-                    }
+                    List<String> split_new_key = new ArrayList<>(Arrays.asList(y.getKey().split(",")));
                     split_new_key.remove(value);
                     String new_key = UtilFunctions.combineWithCommas(split_new_key);
 
@@ -355,23 +348,29 @@ public class CPTBuilder {
      */
     public static List<LinkedHashMap<String, Double>> sortFactors(List<LinkedHashMap<String, Double>> factors) {
 
-        //        LinkedHashMap<String, Double>[] sorted_factors = new LinkedHashMap[factors.size()];
-        List<LinkedHashMap<String, Double>> sorted_factors = new ArrayList<>(factors);
+        LinkedHashMap<String, Double>[] sorted_factors = new LinkedHashMap[factors.size()];
+        for(int i = 0; i < factors.size(); i++) {
+            sorted_factors[i] = factors.get(i);
+        }
+//        List<LinkedHashMap<String, Double>> sorted_factors = new ArrayList<>(factors);
 
         // using bubble sort algorithm
-        for (int i = 0; i < sorted_factors.size(); i++) {
-            for (int j = 0; j < sorted_factors.size() - 1; j++) {
-                if (CPTCompare(sorted_factors.get(i), sorted_factors.get(j + 1))) {
+        for (int i = 0; i < sorted_factors.length; i++) {
+            for (int j = 0; j < sorted_factors.length - 1; j++) {
+                if (CPTCompare(sorted_factors[j], sorted_factors[j + 1])) {
 
                     // swap factors
-                    LinkedHashMap<String, Double> temp = sorted_factors.get(j);
-                    sorted_factors.set(j , sorted_factors.get(j + 1));
-                    sorted_factors.set(j + 1, temp);
+                    LinkedHashMap<String, Double> temp = sorted_factors[j];
+                    sorted_factors[j] = sorted_factors[j + 1];
+                    sorted_factors[j + 1] = temp;
 
                 }
             }
         }
-        return sorted_factors;
+
+        List<LinkedHashMap<String, Double>> sorted_factors_list = new ArrayList<>(Arrays.asList(sorted_factors));
+
+        return sorted_factors_list;
     }
 
     /**
