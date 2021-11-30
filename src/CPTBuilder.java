@@ -37,7 +37,7 @@ public class CPTBuilder {
             for (int j = 0; j < values.length; j++) {
                 sum++;
                 outputs[j] += o.get(k);
-                if(i != outcomes.size() - 1) outputs[j] += ",";
+                if (i != outcomes.size() - 1) outputs[j] += ",";
                 if (sum >= exp) {
                     k++;
                     sum = 0;
@@ -60,7 +60,7 @@ public class CPTBuilder {
             keys.add(key_line.toString());
         }
 
-        for(int i = 0; i < values.length; i++) {
+        for (int i = 0; i < values.length; i++) {
             result.put(keys.get(i), values[i]);
         }
 
@@ -305,6 +305,7 @@ public class CPTBuilder {
      * @return normalized given factor
      */
     public static LinkedHashMap<String, Double> normalize(LinkedHashMap<String, Double> factor, FactorCounter factorCounter) {
+
         LinkedHashMap<String, Double> result = new LinkedHashMap<>();
 //        factor = UtilFunctions.fixingDuplicatesValuesInKeys(factor);
 
@@ -337,6 +338,7 @@ public class CPTBuilder {
             result.put(entry.getKey(), entry.getValue() * exp);
         }
         return result;
+
     }
 
     /**
@@ -349,7 +351,7 @@ public class CPTBuilder {
     public static List<LinkedHashMap<String, Double>> sortFactors(List<LinkedHashMap<String, Double>> factors) {
 
         LinkedHashMap<String, Double>[] sorted_factors = new LinkedHashMap[factors.size()];
-        for(int i = 0; i < factors.size(); i++) {
+        for (int i = 0; i < factors.size(); i++) {
             sorted_factors[i] = factors.get(i);
         }
 //        List<LinkedHashMap<String, Double>> sorted_factors = new ArrayList<>(factors);

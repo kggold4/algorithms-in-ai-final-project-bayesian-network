@@ -95,12 +95,35 @@ public class Variable {
         return this.shaded;
     }
 
+    /**
+     * @return the origin cpt of this variable
+     */
     public LinkedHashMap<String, Double> getCPT() {
         return this.cpt;
     }
 
+    /**
+     * @return variable outcomes
+     */
     public List<String> getOutcomes() {
         return this.outcomes;
+    }
+
+    /**
+     * @param parent_check the variable we go throw parents and check if he is one of them
+     * @return true of and only if parent_check is a parent or grandparent of this variable
+     */
+    public boolean isGrandParent(Variable parent_check) {
+        return isGrandParent(parent_check, this);
+    }
+
+    private boolean isGrandParent(Variable parent_check, Variable current) {
+        if (current.getName().equals(parent_check.getName())) return true;
+        if (!current.hasParents()) return false;
+        for (Variable parent : current.parents) {
+            if (isGrandParent(parent_check, parent)) return true;
+        }
+        return false;
     }
 
     /**

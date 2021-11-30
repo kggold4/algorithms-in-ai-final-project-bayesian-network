@@ -47,7 +47,7 @@ public class Network {
         for (Variable variable : this.variables) {
             List<Variable> variable_parents = variable.getParents();
 
-            if(variable_parents != null) {
+            if (variable_parents != null) {
 
                 // add parents for current variable
                 this.parents.put(variable.getName(), variable_parents);
@@ -214,17 +214,12 @@ public class Network {
         List<String> evidence_values = new ArrayList<>();
         List<Variable> evidence_variables = new ArrayList<>();
         if (evidence != null && evidence.size() > 0) {
-            System.out.println(":::::: " + evidence);
-            System.out.println(evidence.size());
             for (String evs : evidence) {
                 String[] evidence_queries = evs.split(",");
-                System.out.println("?????: " + evidence_queries.length);
-                if(evidence_queries.length > 0) {
+                if (evidence_queries.length > 0) {
                     for (String ev : evidence_queries) {
                         String[] evidence_query = ev.split("=");
-                        System.out.println("!!!!: " + Arrays.toString(evidence_query));
-                        System.out.println(evidence_query.length);
-                        if(evidence_query.length > 0) {
+                        if (evidence_query.length > 0) {
                             evidence_variables.add(getVariableByName(evidence_query[0]));
                             evidence_values.add(evidence_query[1]);
                         }
@@ -274,7 +269,7 @@ public class Network {
             for (Variable h : hidden) {
 
                 // update factor by evidence for each hidden variable
-                LinkedHashMap<String, Double> hashmap = updateLocalCpt(evidence_variables, evidence_values, h);
+                LinkedHashMap<String, Double> hashmap = updateLocalCpt(evidence_variables, evidence_values, h.getCPT());
 
                 if (!hashmap.isEmpty()) factors.put(h.getName(), hashmap);
 
@@ -328,25 +323,42 @@ public class Network {
             factors.put(evidence_variable.getKey(), new_cpt);
         }
 
-        // adding the hypothesis cpt to the factors
-        factors.put(hypothesis.getName(), hypothesis.getCPT());
+        // adding factor of the hypothesis variable
+        LinkedHashMap<String, Double> hypothesis_cpt = updateLocalCpt(evidence_variables, evidence_values, hypothesis.getCPT());
+        if(hypothesis_cpt.isEmpty()) {
+            hypothesis_cpt = hypothesis.getCPT();
+        }
+        factors.put(hypothesis.getName(), hypothesis_cpt);
 
-//        for(Map.Entry<String, LinkedHashMap<String, Double>> f : factors.entrySet()) {
-//
-//        }
+        // checking for each hidden variable if he is parent or grandparent of variable in checking (hypothesis + evidence)
+        List<Variable> checking = new ArrayList<>();
+        checking.add(hypothesis);
+        checking.addAll(evidence_variables);
 
-        hypothesis_value = hypothesis.getName() + "=" + hypothesis_value;
+        LinkedHashMap<String, Boolean> not_grandparents = new LinkedHashMap<>();
+        for (Variable h : hidden) {
+            not_grandparents.put(h.getName(), false);
+        }
 
-        System.out.println("333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
-        System.out.println(evidence_variables.isEmpty());
-        System.out.println("evidence_variables: " + evidence_variables);
-        System.out.println("333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333");
+        for (Variable v : checking) {
+            for (Variable h : hidden) {
+                boolean b = not_grandparents.get(h.getName());
+                not_grandparents.put(h.getName(), b | v.isGrandParent(h));
+            }
+        }
 
-        if(evidence_variables.isEmpty()) {
+        // if we found hidden variable that he is not parent of grandparent of hypothesis and evidence we delete hom from factors
+        for (Map.Entry<String, Boolean> entry : not_grandparents.entrySet()) {
+            if (!entry.getValue()) {
+                factors.remove(entry.getKey());
+            }
+        }
+
+        if (evidence_variables.isEmpty()) {
             // checking if one of the factors contains the needed value of hypothesis alone
-            for(Map.Entry<String, LinkedHashMap<String, Double>> f : factors.entrySet()) {
-                for(Map.Entry<String, Double> line : f.getValue().entrySet()) {
-                    if(line.getKey().equals(hypothesis_value)) {
+            for (Map.Entry<String, LinkedHashMap<String, Double>> f : factors.entrySet()) {
+                for (Map.Entry<String, Double> line : f.getValue().entrySet()) {
+                    if (line.getKey().equals(hypothesis_value)) {
                         List<Double> surprise_result = new ArrayList<>();
                         surprise_result.add(line.getValue());
                         surprise_result.add(0.0);
@@ -468,8 +480,9 @@ public class Network {
             }
         }
 
-        System.out.println("final_factor: ");
-        System.out.println(UtilFunctions.hashMapToString(last_factor));
+        if(CPTBuilder.getNames(last_factor).size() > 1) {
+            last_factor = updateLocalCpt(evidence_variables, evidence_values, last_factor);
+        }
 
         // normalize the final_factor
         last_factor = CPTBuilder.normalize(last_factor, factorCounter);
@@ -503,41 +516,30 @@ public class Network {
      *
      * @param evidence list of the evidence variable
      * @param values   list of the values of the evidence variables
-     * @param hidden   the hidden variable we eliminate
+     * @param factor   the factor we eliminate the evidence values
      * @return the new factor of hidden
      */
-    private LinkedHashMap<String, Double> updateLocalCpt(List<Variable> evidence, List<String> values, Variable hidden) {
+    private LinkedHashMap<String, Double> updateLocalCpt(List<Variable> evidence, List<String> values, LinkedHashMap<String, Double> factor) {
 
-        System.out.println();
-
-        LinkedHashMap<String, Double> hidden_factor = hidden.getCPT();
-        LinkedHashMap<String, Double> factor = new LinkedHashMap<>();
-
-        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-        System.out.println("UPDATE FROM:");
-        System.out.println(UtilFunctions.hashMapToString(hidden_factor));
+        LinkedHashMap<String, Double> result = new LinkedHashMap<>();
 
         for (int i = 0; i < evidence.size(); i++) {
             StringBuilder full_evidence = new StringBuilder();
             full_evidence.append(evidence.get(i).getName()).append("=").append(values.get(i));
 
-            for (Map.Entry<String, Double> key : hidden_factor.entrySet()) {
+            for (Map.Entry<String, Double> key : factor.entrySet()) {
                 if (key.getKey().contains(full_evidence.toString())) {
                     String new_key = key.getKey();
                     List<String> new_key_split = new ArrayList<>();
                     Collections.addAll(new_key_split, new_key.split(","));
                     new_key_split.remove(full_evidence.toString());
                     String key_to_change = UtilFunctions.combineWithCommas(new_key_split);
-                    factor.put(key_to_change, key.getValue());
+                    result.put(key_to_change, key.getValue());
                 }
             }
         }
 
-        System.out.println("UPDATE to:");
-        System.out.println(UtilFunctions.hashMapToString(factor));
-        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-
-        return factor;
+        return result;
     }
 
     /**
