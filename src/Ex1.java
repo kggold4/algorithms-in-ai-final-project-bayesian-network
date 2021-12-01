@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Ex1 {
 
-    private static final String input_file_name = "input.txt";
+    private static final String input_file_name = "input5.txt";
     private static final String output_file_name = "output.txt";
     private static final String split_mark = "split_text";
 
