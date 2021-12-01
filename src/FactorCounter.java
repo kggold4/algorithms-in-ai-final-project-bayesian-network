@@ -23,4 +23,9 @@ public class FactorCounter {
     public int getMulCount() {
         return mul_count;
     }
+
+    @Override
+    public String toString() {
+        return this.sum_count + "," + this.mul_count;
+    }
 }
