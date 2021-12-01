@@ -118,8 +118,6 @@ public class CPTBuilder {
         System.out.println(UtilFunctions.hashMapToString(Y));
         System.out.println("////////////////////////////////////////////");
 
-        factorCounter.mulAdd(Math.max(X.size(), Y.size()));
-
         // get the outcome hashmaps for X and Y
         HashMap<String, List<String>> X_outcomes = getNamesAndOutcomes(X);
         HashMap<String, List<String>> Y_outcomes = getNamesAndOutcomes(Y);
@@ -177,6 +175,8 @@ public class CPTBuilder {
         System.out.println("999999999999999999999999999999999999999");
         System.out.println(UtilFunctions.hashMapToString(result));
         System.out.println("999999999999999999999999999999999999999");
+
+        factorCounter.mulAdd(result.size());
 
         return result;
     }
@@ -237,6 +237,10 @@ public class CPTBuilder {
 
         LinkedHashMap<String, Double> result = new LinkedHashMap<>();
 
+        List<String> names = getNames(factor);
+
+        if(names.size() <= 1) return result;
+
         // build list with all the outcomes of hidden and his name, for example: {"A=T", "A=F"}
         List<String> outcomes = hidden.getOutcomes();
         System.out.println("outcomes: " + outcomes);
@@ -286,59 +290,6 @@ public class CPTBuilder {
         }
 
         return result;
-    }
-
-    /**
-     * this function get a factor (assuming with one variable) and return it normalized
-     * for example if the input factor is:
-     * B=T 0.00059224259
-     * B=F 0.00149185665
-     * the output factor will be:
-     * B=T 0.284171971
-     * B=F 0.715828028
-     * By Calculating:
-     * exp = 1 / 0.00059224259 + 0.00149185665 = 479.8236
-     * 0.00059224259 * 479.8236 = 0.2841719716
-     * 0.00149185665 * 479.8236 = 0.7158280285
-     *
-     * @param factor input factor
-     * @return normalized given factor
-     */
-    public static LinkedHashMap<String, Double> normalize(LinkedHashMap<String, Double> factor, FactorCounter factorCounter) {
-
-        LinkedHashMap<String, Double> result = new LinkedHashMap<>();
-//        factor = UtilFunctions.fixingDuplicatesValuesInKeys(factor);
-
-        LinkedHashMap<String, List<String>> outcomes = getNamesAndOutcomes(factor);
-        String variable_name = "";
-        for (Map.Entry<String, List<String>> entry : outcomes.entrySet()) {
-            variable_name = entry.getKey();
-        }
-        List<String> variable_outcomes = outcomes.get(variable_name);
-        List<String> variable_outcomes_keys = new ArrayList<>();
-        for (String outcome : variable_outcomes) {
-            String value = variable_name + "=" + outcome;
-            variable_outcomes_keys.add(value);
-        }
-        List<Double> values = new ArrayList<>();
-
-        for (String outcome : variable_outcomes_keys) {
-            values.add(factor.get(outcome));
-        }
-
-        // number of values we added less one is the number of addition operations
-        factorCounter.sumAdd(values.size() - 1);
-
-        double exp = 0.0;
-        for (Double value : values) {
-            exp += value;
-        }
-        exp = 1 / exp;
-        for (Map.Entry<String, Double> entry : factor.entrySet()) {
-            result.put(entry.getKey(), entry.getValue() * exp);
-        }
-        return result;
-
     }
 
     /**
