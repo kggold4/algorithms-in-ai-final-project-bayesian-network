@@ -3,3 +3,6 @@ out/*
 *.xml
 *.txt
 src/Temp.java
+!alarm_net.xml
+!big_net.xml
+!input.txt

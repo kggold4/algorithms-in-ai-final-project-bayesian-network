@@ -13,13 +13,6 @@ public class Network {
     // saving childes for each variable
     private final LinkedHashMap<String, List<Variable>> childes;
 
-    // direction of going throw childes or parents in bayes ball algorithm
-    private boolean direction_to_parents;
-    private boolean uninitialized;
-
-    // this hashmap will contain the parents or the childes hashmaps depends on the direction_to_parents boolean value
-    private LinkedHashMap<String, List<Variable>> current_direction;
-
     private static final List<Variable> empty_list = new ArrayList<>();
 
     /**
@@ -33,9 +26,6 @@ public class Network {
 
         this.parents = new LinkedHashMap<>();
         this.childes = new LinkedHashMap<>();
-        this.current_direction = new LinkedHashMap<>();
-        this.direction_to_parents = false;
-        this.uninitialized = false;
         initialize_parents_childes();
     }
 
@@ -83,8 +73,6 @@ public class Network {
                 this.childes.put(variable.getName(), empty_list);
             }
         }
-        this.changeDirection();
-        this.uninitialized = true;
     }
 
     /**
@@ -121,8 +109,6 @@ public class Network {
      * @return true if and only if the start_node and the destination_node are independents
      */
     public boolean bayes_ball(String start_node, String destination_node, List<String> evidences_nodes_names) {
-
-
         List<Variable> evidences_nodes = new ArrayList<>();
         if (evidences_nodes_names != null) {
             for (String name : evidences_nodes_names) {
@@ -140,59 +126,69 @@ public class Network {
      */
     private boolean bayes_ball(Variable start_node, Variable destination_node, List<Variable> evidences_nodes) {
 
-        if (!this.uninitialized) this.initialize_parents_childes();
+        if (start_node == null || destination_node == null) return true;
+        if (start_node.equals(destination_node)) return false;
+        LinkedHashMap<Variable, Visited> visited = new LinkedHashMap<>();
 
-        // if the start node and the destination node do not have any parents, and we not have any evidence they are independents
-        if (this.parents.get(start_node.getName()).isEmpty() && this.parents.get(destination_node.getName()).isEmpty() && evidences_nodes.isEmpty()) {
-            return true;
-        }
-
-        // set all the given evidences as shaded
         for (Variable variable : this.variables) {
             variable.setShade(evidences_nodes.contains(variable));
+            variable.setFromChild(false);
+            visited.put(variable, Visited.NO);
         }
 
-        // for each variable save if visited
-        LinkedHashMap<Variable, Visited> color = new LinkedHashMap<>();
-        for (Variable variable : this.variables) color.put(variable, Visited.NO);
-        color.put(start_node, Visited.YES);
-
+        visited.put(start_node, Visited.YES);
         Queue<Variable> queue = new LinkedList<>();
         queue.add(start_node);
 
-        // bayes ball algorithm with the using of BFS algorithm
         while (!queue.isEmpty()) {
             Variable v = queue.poll();
+//            System.out.println("poll: " + v + ", neighbors: " + getNeighbors(v));
+            for (Variable u : getNeighbors(v)) {
 
-            for (Variable u : this.current_direction.get(v.getName())) {
-                if (color.get(u) == Visited.NO) {
-                    if (u.isShaded()) {
+//                System.out.println("V: " + v + ", U: " + u);
 
-                        // go with parents
-                        color.put(v, Visited.NO);
-                        this.direction_to_parents = true;
-                        this.changeDirection();
+                // found destination
+                if (u.equals(destination_node)) {
+//                    System.out.println("found " + destination_node);
+                    return false;
+                }
 
-                        // if the variable is not evidence mark him as GREY - visited
-                    } else color.put(u, Visited.YES);
-
-                    // dependents - found the destination variable
-                    if (u == destination_node) return false;
+                // if u is parent of v
+                if (this.parents.get(v.getName()).contains(u)) {
                     queue.add(u);
+                    u.setFromChild(true);
+//                    System.out.println(u + " is parent of " + v);
+
+                    // u is child of v
+                } else if (visited.get(u) == Visited.NO) {
+                    queue.add(u);
+                    visited.put(u, Visited.YES);
+                    u.setFromChild(false);
+
+//                    System.out.println(u + " is child of " + v);
+
+                    // found evidence variable
+                    if (u.isShaded()) {
+                        u.setFromChild(true);
+                        if (v.isShaded()) {
+                            u.setFromChild(false);
+                        }
+
+//                        System.out.println(u + " is evidence");
+                    }
                 }
             }
         }
-
-        // independents
         return true;
     }
 
-    /**
-     * change the direction in the bayes ball algorithm in which neighbors of variable they go throw - parent or childes
-     */
-    private void changeDirection() {
-        if (this.direction_to_parents) this.current_direction = this.parents;
-        else this.current_direction = this.childes;
+
+    private List<Variable> getNeighbors(Variable variable) {
+        List<Variable> neighbors = new ArrayList<>(this.childes.get(variable.getName()));
+        if (variable.isFromChild()) {
+            neighbors.addAll(this.parents.get(variable.getName()));
+        }
+        return neighbors;
     }
 
     /**
@@ -204,8 +200,6 @@ public class Network {
      * @return the probability value of the query
      */
     public List<Double> variable_elimination(String hypothesis, List<String> evidence, List<String> hidden) {
-
-        System.out.println("hypothesis: " + hypothesis + ", evidence: " + evidence + ", hidden" + hidden);
 
         String[] hypothesis_query = hypothesis.split("=");
         Variable hypothesis_variable = getVariableByName(hypothesis_query[0]);
@@ -258,8 +252,11 @@ public class Network {
         LinkedHashMap<String, LinkedHashMap<String, Double>> factors = new LinkedHashMap<>();
 
         List<String> evidence_variables_names = new ArrayList<>();
-        for (Variable vd : evidence_variables) {
-            evidence_variables_names.add(vd.getName());
+        for (Variable variable : evidence_variables) {
+//            if(!bayes_ball(hypothesis, variable, evidence_variables)){
+            evidence_variables_names.add(variable.getName());
+//            }
+
         }
 
         for (Variable variable : this.variables) {
@@ -304,7 +301,6 @@ public class Network {
                     }
                 }
             }
-
         }
 
         System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
@@ -332,16 +328,19 @@ public class Network {
                 }
 
                 String last_name = "empty";
-                for (String name : variables_names_to_join) {
-                    factors.remove(name);
-                    last_name = name;
+                if (variables_names_to_join.size() > 1) {
+                    for (String name : variables_names_to_join) {
+                        factors.remove(name);
+                        last_name = name;
+                    }
+                } else if (variables_names_to_join.size() == 1) {
+                    last_name = variables_names_to_join.get(0);
                 }
 
                 if (!cpt_to_join.isEmpty()) {
+                    if (cpt_to_join.size() > 1) {
 
-                    if(cpt_to_join.size() > 1) {
-
-                        System.out.println("factor to join with " + h.getName());
+                        System.out.println("\nfactor to join with " + h.getName() + ":\n");
                         for (LinkedHashMap<String, Double> cpt : cpt_to_join) {
                             System.out.println(UtilFunctions.hashMapToString(cpt));
                         }
@@ -360,27 +359,23 @@ public class Network {
                             new_factor = CPTBuilder.eliminate(new_factor, h, factorCounter);
                         } else if (CPTBuilder.getNames(new_factor).size() == 1) factor_to_add = false;
 
-
                         System.out.println("\tFactor AFTER Eliminate on " + h.getName() + "\n");
                         System.out.println("factorCounter: " + factorCounter);
                         System.out.println(UtilFunctions.hashMapToString(new_factor));
-
-                        System.out.println("last_name: " + last_name);
-
                         if (factor_to_add) factors.put(last_name, new_factor);
-
-
-                        System.out.println("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{");
-                        System.out.println("FACTORS:");
-                        for (Map.Entry<String, LinkedHashMap<String, Double>> f : factors.entrySet()) {
-                            System.out.println("NAME: " + f.getKey());
-                            System.out.println(UtilFunctions.hashMapToString(f.getValue()));
-                        }
-                        System.out.println("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{");
                     }
                 }
             }
         }
+
+        System.out.println();
+        System.out.println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+        System.out.println("PRINT CURRENT FACTORS:");
+        for (Map.Entry<String, LinkedHashMap<String, Double>> f : factors.entrySet()) {
+            System.out.println("NAME: " + f.getKey());
+            System.out.println(UtilFunctions.hashMapToString(f.getValue()));
+        }
+        System.out.println("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
 
         // removing the factors with size of one or less
         LinkedHashMap<String, Integer> sizes = new LinkedHashMap<>();
@@ -420,9 +415,18 @@ public class Network {
 
             for (Map.Entry<String, LinkedHashMap<String, Double>> f : factors.entrySet()) {
                 last_factor = new LinkedHashMap<>(f.getValue());
-                System.out.println("2) LAST FACTOR:");
+                System.out.println("LAST FACTOR:");
                 System.out.println(UtilFunctions.hashMapToString(last_factor));
                 break;
+            }
+        }
+
+        // if the last factor contains values for more than one variable - eliminate again with those variables
+        List<String> names_in_last_factor = CPTBuilder.getNames(last_factor);
+        if (names_in_last_factor.size() > 1) {
+            names_in_last_factor.remove(hypothesis.getName());
+            for (String name : names_in_last_factor) {
+                last_factor = CPTBuilder.eliminate(last_factor, getVariableByName(name), factorCounter);
             }
         }
 
@@ -436,16 +440,22 @@ public class Network {
         for (Map.Entry<String, Double> entry : last_factor.entrySet()) {
             if (entry.getKey().contains(hypothesis_value)) {
                 value = entry.getValue();
-                System.out.println("entry.getValue(): " + entry.getValue());
                 break;
             }
         }
 
         System.out.println("FINAL VALUE IS " + value);
 
+        // result list
         List<Double> result = new ArrayList<>();
+
+        // final value
         result.add(value);
+
+        // number of Additions
         result.add((double) factorCounter.getSumCount());
+
+        // number of multiples
         result.add((double) factorCounter.getMulCount());
 
         return result;
@@ -490,7 +500,6 @@ public class Network {
             if (b) {
                 result.put(entry.getKey(), entry.getValue());
             }
-
         }
 
         return result;
@@ -517,22 +526,10 @@ public class Network {
         LinkedHashMap<String, Double> result = new LinkedHashMap<>();
         factor = UtilFunctions.fixingDuplicatesValuesInKeys(factor);
 
-        if (CPTBuilder.getNames(factor).size() == 1 && factor.size() == 1) {
-            List<String> outcomes = getVariableByName(CPTBuilder.getNames(factor).get(0)).getOutcomes();
-            double value = 0.0;
-            String key = "";
-            for (Map.Entry<String, Double> entry : factor.entrySet()) {
-                key = entry.getKey();
-                value = entry.getValue();
-                break;
-            }
-            double q = 1 - value;
-            double k = q / (outcomes.size() - 1);
-            double exp = q + k * (outcomes.size() + 1);
-            exp = 1 / exp;
-            result.put(key, value * exp);
-
-        }
+        System.out.println("=======================================================================================");
+        System.out.println("Factor to Normalize:");
+        System.out.println(UtilFunctions.hashMapToString(factor));
+        System.out.println("=======================================================================================");
 
         LinkedHashMap<String, List<String>> outcomes = CPTBuilder.getNamesAndOutcomes(factor);
         String variable_name = "";

@@ -35,12 +35,13 @@ public class QueryReader {
             String[] evidence = half[1].split(",");
             for (String s : evidence) {
                 StringBuilder ve = new StringBuilder();
-                for(int j = 0; j < s.length() - 2; j++) {
-                    ve.append(s.charAt(j));
-                }
+                String[] keys = s.split("=");
+                ve.append(keys[0]);
                 output.add(ve.toString());
             }
         }
+
+        System.out.println("OUTPUT: " + output);
 
         return output;
     }

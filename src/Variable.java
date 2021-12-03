@@ -9,6 +9,7 @@ public class Variable {
     private final List<String> outcomes;
     private LinkedHashMap<String, Double> cpt;
     private boolean shaded;
+    private boolean fromChild;
     public boolean uninitialized;
 
     /**
@@ -23,6 +24,7 @@ public class Variable {
         this.cpt = new LinkedHashMap<>();
         this.shaded = false;
         this.uninitialized = false;
+        this.fromChild = false;
     }
 
     /**
@@ -126,6 +128,14 @@ public class Variable {
         return false;
     }
 
+    public boolean isFromChild() {
+        return this.fromChild;
+    }
+
+    public void setFromChild(boolean fromParents) {
+        this.fromChild = fromParents;
+    }
+
     /**
      * to string method
      *
@@ -134,5 +144,18 @@ public class Variable {
     @Override
     public String toString() {
         return "" + this.name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Variable variable = (Variable) o;
+        return Objects.equals(this.name, variable.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }
