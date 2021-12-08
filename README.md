@@ -94,6 +94,7 @@ and H1-...-Hm are the variable we want to eliminate throw the algorithm in that 
 ![ve4.png](images/ve4.png)
 
 <b>Join A:</b>
+
 ![img.png](images/ve5.png)
 
 ![img.png](images/ve6.png)
