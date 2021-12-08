@@ -83,14 +83,17 @@ and H1-...-Hm are the variable we want to eliminate throw the algorithm in that 
 ### Algorithm Example:
 
 <b>In our example, we want to compute:</b>
+
 ![ve1.png](images/ve1.png)
 
 <b>Our relevant factors CPTs are:</b>
+
 ![ve2.png](images/ve2.png)
 
 ![ve3.png](images/ve3.png)
 
 <b>And we can write:</b>
+
 ![ve4.png](images/ve4.png)
 
 <b>Join A:</b>
@@ -100,12 +103,15 @@ and H1-...-Hm are the variable we want to eliminate throw the algorithm in that 
 ![img.png](images/ve6.png)
 
 <b>Eliminate A:</b>
+
 ![img.png](images/ve7.png)
 
 <b>Join and Eliminate A:</b>
+
 ![img.png](images/ve8.png)
 
 <b>Join B and Normalize:</b>
+
 ![img.png](images/ve9.png)
 
 Now we got that the probability of B=T is 0.284171971
